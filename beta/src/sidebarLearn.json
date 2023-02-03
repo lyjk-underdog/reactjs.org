@@ -166,7 +166,7 @@
           "tags": ["advanced"],
           "routes": [
             {
-              "title": "Referencing Values with Refs",
+              "title": "用 ref 来引用数值",
               "path": "/learn/referencing-values-with-refs"
             },
             {

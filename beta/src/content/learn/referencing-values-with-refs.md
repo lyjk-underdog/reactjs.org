@@ -1,37 +1,37 @@
 ---
-title: 'Referencing Values with Refs'
+title: '用 ref 来引用数值'
 ---
 
 <Intro>
 
-When you want a component to "remember" some information, but you don't want that information to [trigger new renders](/learn/render-and-commit), you can use a *ref*.
+当你想让一个组件 “记住” 一些信息，但又不想让这些信息[触发新的渲染](/learn/render-and-commit)时，你可以使用一个*ref*。
 
 </Intro>
 
 <YouWillLearn>
 
-- How to add a ref to your component
-- How to update a ref's value
-- How refs are different from state
-- How to use refs safely
+- 如何在你的组件中添加一个 ref
+- 如何更新一个 ref 的值
+- ref 与 state 有什么不同
+- 如何安全地使用 ref
 
 </YouWillLearn>
 
-## Adding a ref to your component {/*adding-a-ref-to-your-component*/}
+## 在你的组件中添加一个 ref {/*adding-a-ref-to-your-component*/}
 
-You can add a ref to your component by importing the `useRef` Hook from React:
+你可以通过从React中导入 `useRef` Hook来给你的组件添加一个 ref ：
 
 ```js
 import { useRef } from 'react';
 ```
 
-Inside your component, call the `useRef` Hook and pass the initial value that you want to reference as the only argument. For example, here is a ref to the value `0`:
+在你的组件中，调用 `useRef` Hook，并将你想要引用的初始值作为唯一的参数传递给它。例如，这里是对值 `0` 的引用：
 
 ```js
 const ref = useRef(0);
 ```
 
-`useRef` returns an object like this:
+`useRef` 返回一个像这样的对象：
 
 ```js
 { 
@@ -41,9 +41,9 @@ const ref = useRef(0);
 
 <Illustration src="/images/docs/illustrations/i_ref.png" alt="An arrow with 'current' written on it stuffed into a pocket with 'ref' written on it." />
 
-You can access the current value of that ref through the `ref.current` property. This value is intentionally mutable, meaning you can both read and write to it. It's like a secret pocket of your component that React doesn't track. (This is what makes it an "escape hatch" from React's one-way data flow--more on that below!)
+你可以通过 `ref.current` 属性访问该 ref 的当前值。这个值故意是可变的，这意味着你可以读取和写入它。它就像你的组件的一个秘密口袋，React并不跟踪它。(这就是为什么它是React单向数据流的 "逃生舱"--下面会详细介绍！)
 
-Here, a button will increment `ref.current` on every click:
+这里，一个按钮将在每次点击时增加 `ref.current` ：
 
 <Sandpack>
 
@@ -68,20 +68,20 @@ export default function Counter() {
 
 </Sandpack>
 
-The ref points to a number, but, like [state](/learn/state-a-components-memory), you could point to anything: a string, an object, or even a function. Unlike state, ref is a plain JavaScript object with the `current` property that you can read and modify.
+ref 指向一个数字，但是和 [state](/learn/state-a-components-memory) 一样，你可以指向任何东西：一个字符串，一个对象，甚至是一个函数。与 state 不同，ref 是一个普通的JavaScript对象，你可以可以读取和修改它的 `current` 属性。
 
-Note that **the component doesn't re-render with every increment.** Like state, refs are retained by React between re-renders. However, setting state re-renders a component. Changing a ref does not!
+请注意，**该组件不会在每次增量时重新渲染**。像 state 一样，ref 在重新渲染之间被React保留。然而，设置 state 会重新渲染一个组件，而改变 ref 则不会！
 
-## Example: building a stopwatch {/*example-building-a-stopwatch*/}
+## 案例：建立一个秒表 {/*example-building-a-stopwatch*/}
 
-You can combine refs and state in a single component. For example, let's make a stopwatch that the user can start or stop by pressing a button. In order to display how much time has passed since the user pressed "Start", you will need to keep track of when the Start button was pressed and what the current time is. **This information is used for rendering, so you'll keep it in state:**
+你可以在一个组件中结合 ref 和 state 。例如，让我们做一个秒表，用户可以通过按一个按钮开始或停止。为了显示自用户按下 “开始” 以来已经过去了多少时间，你将需要跟踪 “开始” 按钮被按下的时间以及当前的时间是多少。**这个信息是用来渲染的，所以你要保持它的状态：**
 
 ```js
 const [startTime, setStartTime] = useState(null);
 const [now, setNow] = useState(null);
 ```
 
-When the user presses "Start", you'll use [`setInterval`](https://developer.mozilla.org/docs/Web/API/setInterval) in order to update the time every 10 milliseconds:
+当用户按下 “开始” 时，你将使用 [`setInterval`](https://developer.mozilla.org/docs/Web/API/setInterval)，以便每10毫秒更新一次时间：
 
 <Sandpack>
 
@@ -121,7 +121,7 @@ export default function Stopwatch() {
 
 </Sandpack>
 
-When the "Stop" button is pressed, you need to cancel the existing interval so that it stops updating the `now` state variable. You can do this by calling [`clearInterval`](https://developer.mozilla.org/en-US/docs/Web/API/clearInterval), but you need to give it the interval ID that was previously returned by the `setInterval` call when the user pressed Start. You need to keep the interval ID somewhere. **Since the interval ID is not used for rendering, you can keep it in a ref:**
+当 “停止” 按钮被按下时，你需要取消现有的 interval，使其停止更新 `now` 状态变量。你可以通过调用[`clearInterval`](https://developer.mozilla.org/en-US/docs/Web/API/clearInterval)来做到这一点，但是你需要给它一个 interval ID ，这个 interval ID 是之前在用户按下 Start 时通过 `setInterval` 返回的。你需要在某个地方保留这个 interval ID。由于 interval ID 不用于渲染，你可以将它保存在一个 ref 中。
 
 <Sandpack>
 
@@ -168,20 +168,20 @@ export default function Stopwatch() {
 
 </Sandpack>
 
-When a piece of information is used for rendering, keep it in state. When a piece of information is only needed by event handlers and changing it doesn't require a re-render, using a ref may be more efficient.
+当一个信息被用于渲染时，要保持它的状态。当一个信息只被事件处理程序所需要，并且改变它不需要重新渲染时，使用 ref 可能更有效率。
 
-## Differences between refs and state {/*differences-between-refs-and-state*/}
+## ref 与 state 之间的区别 {/*differences-between-refs-and-state*/}
 
-Perhaps you're thinking refs seem less "strict" than state—you can mutate them instead of always having to use a state setting function, for instance. But in most cases, you'll want to use state. Refs are an "escape hatch" you won't need often. Here's how state and refs compare:
+也许你认为 ref 似乎没有 state 那么 “严格”——你可以对它们进行突变，而不是总是要使用状态设置函数。但在大多数情况下，你应该使用 state，ref 是一个你不常需要的 “逃生舱”。下面是 state 和 ref 的比较：
 
-| refs                                                                                  | state                                                                                                                     |
-| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `useRef(initialValue)` returns `{ current: initialValue }`                            | `useState(initialValue)` returns the current value of a state variable and a state setter function ( `[value, setValue]`) |
-| Doesn't trigger re-render when you change it.                                         | Triggers re-render when you change it.                                                                                    |
-| Mutable—you can modify and update `current`'s value outside of the rendering process. | "Immutable"—you must use the state setting function to modify state variables to queue a re-render.                       |
-| You shouldn't read (or write) the `current` value during rendering. | You can read state at any time. However, each render has its own [snapshot](/learn/state-as-a-snapshot) of state which does not change.
+| ref                                                     | state                                                                                                |
+| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `useRef(initialValue)` 返回 `{ current: initialValue }` | `useState(initialValue)` 返回一个状态变量的当前值和一个状态设置函数 ( `[value, setValue]`)           |
+| 当你改变它时，不会触发重新渲染。                        | 当你改变它时，会触发重新渲染。                                                                       |
+| 可变的——你可以在渲染过程之外修改和更新 `current` 的值。 | "不可改变"——你必须使用状态设置函数来修改状态变量以排队重新渲染。                                     |
+| 在渲染过程中，你不应该读取（或写入）当前值。            | 你可以在任何时候读取状态。然而，每次渲染都有自己的状态[快照](/learn/state-as-a-snapshot)，不会改变。 |
 
-Here is a counter button that's implemented with state:
+这里有一个用 state 实现的计数器按钮：
 
 <Sandpack>
 
@@ -205,9 +205,9 @@ export default function Counter() {
 
 </Sandpack>
 
-Because the `count` value is displayed, it makes sense to use a state value for it. When the counter's value is set with `setCount()`, React re-renders the component and the screen updates to reflect the new count.
+因为 `count` 值是需要显示的，所以为它使用一个状态值是合理的。当计数器的值被 `setCount()` 设置后，React会重新渲染该组件，屏幕会更新以反映新的计数。
 
-If you tried to implement this with a ref, React would never re-render the component, so you'd never see the count change! See how clicking this button **does not update its text**:
+如果你试图用 ref 来实现这一点，React将永远不会重新渲染组件，所以你永远不会看到计数的变化！点击这个按钮，看看它**为什么不更新文本**：
 
 <Sandpack>
 
@@ -232,13 +232,13 @@ export default function Counter() {
 
 </Sandpack>
 
-This is why reading `ref.current` during render leads to unreliable code. If you need that, use state instead.
+这就是为什么在渲染过程中读取 `ref.current` 会导致不可靠的代码。如果你需要，就用 state 代替。
 
 <DeepDive>
 
-#### How does useRef work inside? {/*how-does-use-ref-work-inside*/}
+#### useRef 在内部是如何工作的？ {/*how-does-use-ref-work-inside*/}
 
-Although both `useState` and `useRef` are provided by React, in principle `useRef` could be implemented _on top of_ `useState`. You can imagine that inside of React, `useRef` is implemented like this:
+尽管 `useState` 和 `useRef` 都是由React提供的，但原则上 `useRef` 可以在 `useState` 的基础上实现。你可以想象，在React内部，`useRef` 是这样实现的：
 
 ```js
 // Inside of React
@@ -248,52 +248,52 @@ function useRef(initialValue) {
 }
 ```
 
-During the first render, `useRef` returns `{ current: initialValue }`. This object is stored by React, so during the next render the same object will be returned. Note how the state setter is unused in this example. It is unnecessary because `useRef` always needs to return the same object!
+在第一次渲染时，`useRef` 返回 `{ current: initialValue }`。这个对象被React存储起来，所以在下一次渲染时，会返回同一个对象。请注意，在这个例子中，状态设置器是未使用的。它是不必要的，因为 `useRef` 总是需要返回相同的对象!
 
-React provides a built-in version of `useRef` because it is common enough in practice. But you can think of it as a regular state variable without a setter. If you're familiar with object-oriented programming, refs might remind you of instance fields--but instead of `this.something` you write `somethingRef.current`.
+React提供了 `useRef` 的内置版本，因为它在实践中足够常见。但是你可以把它看成是一个没有 setter 的普通状态变量。如果你熟悉面向对象编程，ref 可能会让你想起实例字段——但你写的不是`this.something`，而是`somethingRef.current`。
 
 </DeepDive>
 
-## When to use refs {/*when-to-use-refs*/}
+## 什么时候使用 ref {/*when-to-use-refs*/}
 
-Typically, you will use a ref when your component needs to "step outside" React and communicate with external APIs—often a browser API that won't impact the appearance of the component. Here are a few of these rare situations:
+通常情况下，当你的组件需要 “走出” React并与外部API通信时，你会使用 ref，通常是不会影响组件外观的浏览器API。下面是一些罕见的情况：
 
-- Storing [timeout IDs](https://developer.mozilla.org/docs/Web/API/setTimeout)
-- Storing and manipulating [DOM elements](https://developer.mozilla.org/docs/Web/API/Element), which we cover on [the next page](/learn/manipulating-the-dom-with-refs)
-- Storing other objects that aren't necessary to calculate the JSX.
+- 存储 [timeout ID](https://developer.mozilla.org/docs/Web/API/setTimeout)
+- 存储和操作 [DOM elements](https://developer.mozilla.org/docs/Web/API/Element)，我们将在 [下一页](/learn/manipulating-the-dom-with-refs)介绍
+- 储存其他对象，这些对象对于计算 JSX 是不必要的。
 
-If your component needs to store some value, but it doesn't impact the rendering logic, choose refs.
+如果你的组件需要存储一些值，但它不影响渲染逻辑，可以选择 ref 。
 
-## Best practices for refs {/*best-practices-for-refs*/}
+## ref 最佳实践 {/*best-practices-for-refs*/}
 
-Following these principles will make your components more predictable:
+遵循这些原则将使你的组件更加可预测：
 
-- **Treat refs as an escape hatch.** Refs are useful when you work with external systems or browser APIs. If much of your application logic and data flow relies on refs, you might want to rethink your approach.
-- **Don't read or write `ref.current` during rendering.** If some information is needed during rendering, use [state](/learn/state-a-components-memory) instead. Since React doesn't know when `ref.current` changes, even reading it while rendering makes your component's behavior difficult to predict. (The only exception to this is code like `if (!ref.current) ref.current = new Thing()` which only sets the ref once during the first render.)
+- **把 ref 当作一个逃生舱口。** 当你与外部系统或浏览器API一起工作时，ref 是很有用的。如果你的大部分应用逻辑和数据流都依赖于 ref，你可能要重新考虑你的方法。
+- **在渲染过程中，不要读或写 `ref.current`。** 如果在渲染过程中需要一些信息，请使用 state 来代替。因为React不知道 `ref.current` 何时改变，即使在渲染时读取它也会使你的组件的行为难以预测。(唯一的例外是像 `if (!ref.current) ref.current = new Thing()` 这样的代码，它只在第一次渲染时设置一次 ref。)
 
-Limitations of React state don't apply to refs. For example, state acts like a [snapshot for every render](/learn/state-as-a-snapshot) and [doesn't update synchronously.](/learn/queueing-a-series-of-state-updates) But when you mutate the current value of a ref, it changes immediately:
+React state 的限制并不适用于 ref。例如，state 在每次[渲染时就像一个快照](/learn/state-as-a-snapshot)，[不会同步更新](/learn/queueing-a-series-of-state-updates)。但是当你突变一个ref 的当前值时，它会立即改变：
 
 ```js
 ref.current = 5;
 console.log(ref.current); // 5
 ```
 
-This is because **the ref itself is a regular JavaScript object,** and so it behaves like one.
+这是因为 **ref 本身是一个普通的JavaScript对象，** 所以它的行为也像一个对象。
 
-You also don't need to worry about [avoiding mutation](/learn/updating-objects-in-state) when you work with a ref. As long as the object you're mutating isn't used for rendering, React doesn't care what you do with the ref or its contents.
+当你使用 ref 时，你也不需要担心如何[避免变异](/learn/updating-objects-in-state)。只要你要变异的对象不用于渲染，React就不会关心你对引用或其内容做什么。
 
-## Refs and the DOM {/*refs-and-the-dom*/}
+## ref 与 DOM {/*refs-and-the-dom*/}
 
-You can point a ref to any value. However, the most common use case for a ref is to access a DOM element. For example, this is handy if you want to focus an input programmatically. When you pass a ref to a `ref` attribute in JSX, like `<div ref={myRef}>`, React will put the corresponding DOM element into `myRef.current`. You can read more about this in [Manipulating the DOM with Refs.](/learn/manipulating-the-dom-with-refs)
+你可以将一个 ref 指向任何值。然而，ref 最常见的使用情况是访问一个DOM元素。例如，如果你想以编程方式关注一个输入，这就很方便。当你在JSX中传递一个 `ref` 属性，比如 `<div ref={myRef}>`，React会把相应的DOM元素放入 `myRef.current`。你可以在[用 ref 操纵DOM](/learn/manipulating-the-dom-with-refs)中阅读更多相关内容。
 
 <Recap>
 
-- Refs are an escape hatch to hold onto values that aren't used for rendering. You won't need them often.
-- A ref is a plain JavaScript object with a single property called `current`, which you can read or set.
-- You can ask React to give you a ref by calling the `useRef` Hook.
-- Like state, refs let you retain information between re-renders of a component.
-- Unlike state, setting the ref's `current` value does not trigger a re-render.
-- Don't read or write `ref.current` during rendering. This makes your component hard to predict.
+- ref 是用来保存不用于渲染的值的逃生舱口。你不会经常需要它们。
+- ref 是一个普通的JavaScript对象，它有一个可以读写的 `current` 的属性。
+- 你可以通过调用 `useRef` Hook来要求React给你一个ref。
+- 和 state 一样，ref 可以让你在组件的重新渲染之间保留信息。
+- 与 state 不同，设置 ref 的 `current` 值不会触发重新渲染。
+- 在渲染过程中不要读写 `ref.current` 。这使得你的组件难以预测。
 
 </Recap>
 
@@ -301,13 +301,13 @@ You can point a ref to any value. However, the most common use case for a ref is
 
 <Challenges>
 
-#### Fix a broken chat input {/*fix-a-broken-chat-input*/}
+#### 修复一个破损的聊天输入 {/*fix-a-broken-chat-input*/}
 
-Type a message and click "Send". You will notice there is a three second delay before you see the "Sent!" alert. During this delay, you can see an "Undo" button. Click it. This "Undo" button is supposed to stop the "Sent!" message from appearing. It does this by calling [`clearTimeout`](https://developer.mozilla.org/en-US/docs/Web/API/clearTimeout) for the timeout ID saved during `handleSend`. However, even after "Undo" is clicked, the "Sent!" message still appears. Find why it doesn't work, and fix it.
+输入一个信息，然后点击 “发送”。你会注意到，在你看到 “已发送！” 的提醒之前，会有三秒钟的延迟。在这个延迟期间，你可以看到一个 “撤销” 按钮。点击它。这个 “撤销” 按钮应该是为了阻止 “已发送！” 信息的出现。它通过调用 `handleSend` 过程中保存的 timeout ID 的 [`clearTimeout`](https://developer.mozilla.org/en-US/docs/Web/API/clearTimeout) 来实现这一目的。然而，即使点击了 “撤销”， “已发送！” 信息仍然出现。找到它不工作的原因，并加以解决。
 
 <Hint>
 
-Regular variables like `let timeoutID` don't "survive" between re-renders because every render runs your component (and initializes its variables) from scratch. Should you keep the timeout ID somewhere else?
+像 `let timeoutID` 这样的常规变量不会在重新渲染之间 "存活"，因为每次渲染都会从头开始运行你的组件（并初始化其变量）。你应该把 timeout ID 放在别的地方吗？
 
 </Hint>
 
@@ -360,7 +360,7 @@ export default function Chat() {
 
 <Solution>
 
-Whenever your component re-renders (such as when you set state), all local variables get initialized from scratch. This is why you can't save the timeout ID in a local variable like `timeoutID` and then expect another event handler to "see" it in the future. Instead, store it in a ref, which React will preserve between renders.
+每当你的组件重新出现时（比如你设置状态时），所有的局部变量都会从头开始初始化。这就是为什么你不能把 timeout ID 保存在一个像 `timeoutID` 这样的局部变量中，然后期望另一个事件处理程序在未来 “看到” 它。相反，你可以把它存储在一个 ref 中，React 会在两次渲染之间保留它。
 
 <Sandpack>
 
@@ -412,9 +412,9 @@ export default function Chat() {
 </Solution>
 
 
-#### Fix a component failing to re-render {/*fix-a-component-failing-to-re-render*/}
+#### 修复一个组件无法重新渲染的问题 {/*fix-a-component-failing-to-re-render*/}
 
-This button is supposed to toggle between showing "On" and "Off". However, it always shows "Off". What is wrong with this code? Fix it.
+这个按钮应该是在显示 “On” 和 “Off” 之间切换的。然而，它总是显示 “Off”。这段代码有什么问题？修复它。
 
 <Sandpack>
 
@@ -438,7 +438,7 @@ export default function Toggle() {
 
 <Solution>
 
-In this example, the current value of a ref is used to calculate the rendering output: `{isOnRef.current ? 'On' : 'Off'}`. This is a sign that this information should not be in a ref, and should have instead been put in state. To fix it, remove the ref and use state instead:
+在这个例子中，一个 ref 的当前值被用来计算渲染输出：`{isOnRef.current ? 'On' : 'Off'}`。这是一个迹象，表明这些信息不应该在 ref 中出现，而应该放在 state 中。要解决这个问题，请删除 ref，而使用 state：
 
 <Sandpack>
 
@@ -462,17 +462,17 @@ export default function Toggle() {
 
 </Solution>
 
-#### Fix debouncing {/*fix-debouncing*/}
+#### 修复防抖问题 {/*fix-debouncing*/}
 
-In this example, all button click handlers are ["debounced".](https://redd.one/blog/debounce-vs-throttle) To see what this means, press one of the buttons. Notice how the message appears a second later. If you press the button while waiting for the message, the timer will reset. So if you keep clicking the same button fast many times, the message won't appear until a second *after* you stop clicking. Debouncing lets you delay some action until the user "stops doing things".
+在这个例子中，所有的按钮点击处理程序都是 [“防抖”](https://redd.one/blog/debounce-vs-throttle) 的。要看看这意味着什么，请按下其中一个按钮。注意一秒钟后消息是如何出现的。如果你在等待消息时按下按钮，计时器会重置。因此，如果你一直快速点击同一个按钮很多次，那么在你停止点击一秒钟*后*，信息才会出现。防抖让你延迟一些动作，直到用户 “停止做事”。
 
-This example works, but not quite as intended. The buttons are not independent. To see the problem, click one of the buttons, and then immediately click another button. You'd expect that after a delay, you would see both button's messages. But only the last button's message shows up. The first button's message gets lost.
+这个例子可以工作，但不太符合预期。这些按钮不是独立的。要看到这个问题，点击其中一个按钮，然后立即点击另一个按钮。你会认为在延迟之后，会看到两个按钮的信息。但只有最后一个按钮的信息显示出来。第一个按钮的信息会丢失。
 
-Why are the buttons interfering with each other? Find and fix the issue.
+为什么按钮之间会相互干扰？找到并解决这个问题。
 
 <Hint>
 
-The last timeout ID variable is shared between all `DebouncedButton` components. This is why clicking one button resets another button's timeout. Can you store a separate timeout ID for each button?
+所有 `DebouncedButton` 组件之间共享最后的 timeout ID 变量。这就是为什么点击一个按钮会重置另一个按钮的超时。你能为每个按钮存储一个单独的 timeout ID 吗？
 
 </Hint>
 
@@ -527,7 +527,7 @@ button { display: block; margin: 10px; }
 
 <Solution>
 
-A variable like `timeoutID` is shared between all components. This is why clicking on the second button resets the first button's pending timeout. To fix this, you can keep timeout in a ref. Each button will get its own ref, so they won't conflict with each other. Notice how clicking two buttons fast will show both messages.
+像 `timeoutID` 这样的变量是在所有组件之间共享的。这就是为什么点击第二个按钮会重置第一个按钮的待定超时。为了解决这个问题，你可以把 timeout ID 放在一个 ref 中。每个按钮将得到它自己的 ref，所以它们不会互相冲突。请注意，快速点击两个按钮将显示两个消息。
 
 <Sandpack>
 
@@ -579,11 +579,11 @@ button { display: block; margin: 10px; }
 
 </Solution>
 
-#### Read the latest state {/*read-the-latest-state*/}
+#### 读取最新的状态 {/*read-the-latest-state*/}
 
-In this example, after you press "Send", there is a small delay before the message is shown. Type "hello", press Send, and then quickly edit the input again. Despite your edits, the alert would still show "hello" (which was the value of state [at the time](/learn/state-as-a-snapshot#state-over-time) the button was clicked).
+在这个例子中，在你按下 “Send” 之后，在信息显示之前会有一个小的延迟。输入 “hello”，按 “Send”，然后再次快速编辑输入。尽管你做了编辑，警报仍然会显示 “hello”（这是在[点击按钮时](/learn/state-as-a-snapshot#state-over-time)的状态值）。
 
-Usually, this behavior is what you want in an app. However, there may be occasional cases where you want some asynchronous code to read the *latest* version of some state. Can you think of a way to make the alert show the *current* input text rather than what it was at the time of the click?
+通常情况下，这种行为是你在应用程序中所希望的。然而，偶尔也会有这样的情况，你想用一些异步代码来读取一些状态的*最新*版本。你能想到一种方法，使警报显示*当前*的输入文本，而不是点击时的文本吗？
 
 <Sandpack>
 
