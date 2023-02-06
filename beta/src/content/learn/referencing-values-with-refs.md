@@ -618,7 +618,7 @@ export default function Chat() {
 
 <Solution>
 
-State works [like a snapshot](/learn/state-as-a-snapshot), so you can't read the latest state from an asynchronous operation like a timeout. However, you can keep the latest input text in a ref. A ref is mutable, so you can read the `current` property at any time. Since the current text is also used for rendering, in this example, you will need *both* a state variable (for rendering), *and* a ref (to read it in the timeout). You will need to update the current ref value manually.
+state [像快照](/learn/state-as-a-snapshot)一样工作，所以你不能从像 timeout 这样的异步操作中读取最新状态。然而，你可以把最新的输入文本保存在一个 ref 中。一个 ref 是可变的，所以你可以在任何时候读取 `current` 属性。由于当前文本也用于渲染，在这个例子中，你既需要一个 state 变量（用于渲染），也需要一个 ref（用于在 timeout 中读取）。你将需要手动更新当前的 ref 值。
 
 <Sandpack>
 

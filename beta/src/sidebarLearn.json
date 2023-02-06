@@ -161,7 +161,7 @@
           ]
         },
         {
-          "title": "逃生窗口",
+          "title": "逃生舱口",
           "path": "/learn/escape-hatches",
           "tags": ["advanced"],
           "routes": [
@@ -170,31 +170,31 @@
               "path": "/learn/referencing-values-with-refs"
             },
             {
-              "title": "Manipulating the DOM with Refs",
+              "title": "用 ref 操纵DOM",
               "path": "/learn/manipulating-the-dom-with-refs"
             },
             {
-              "title": "Synchronizing with Effects",
+              "title": "用 Effect 进行同步 ",
               "path": "/learn/synchronizing-with-effects"
             },
             {
-              "title": "You Might Not Need an Effect",
+              "title": "你可能不需要 Effect ",
               "path": "/learn/you-might-not-need-an-effect"
             },
             {
-              "title": "Lifecycle of Reactive Effects",
+              "title": "响应式 Effect 的生命周期 ",
               "path": "/learn/lifecycle-of-reactive-effects"
             },
             {
-              "title": "Separating Events from Effects",
+              "title": "从 Effect 中分离 Event",
               "path": "/learn/separating-events-from-effects"
             },
             {
-              "title": "Removing Effect Dependencies",
+              "title": "删除 Effect 依赖项",
               "path": "/learn/removing-effect-dependencies"              
             },
             {
-              "title": "Reusing Logic with Custom Hooks",
+              "title": "用自定义 Hook 复用逻辑",
               "path": "/learn/reusing-logic-with-custom-hooks"
             }
           ]

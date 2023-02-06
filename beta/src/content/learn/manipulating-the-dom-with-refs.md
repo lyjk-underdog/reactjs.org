@@ -1,52 +1,52 @@
 ---
-title: 'Manipulating the DOM with Refs'
+title: '用 ref 操纵DOM'
 ---
 
 <Intro>
 
-React automatically updates the [DOM](https://developer.mozilla.org/docs/Web/API/Document_Object_Model/Introduction) to match your render output, so your components won't often need to manipulate it. However, sometimes you might need access to the DOM elements managed by React--for example, to focus a node, scroll to it, or measure its size and position. There is no built-in way to do those things in React, so you will need a *ref* to the DOM node.
+React会自动更新[DOM](https://developer.mozilla.org/docs/Web/API/Document_Object_Model/Introduction)以匹配你的渲染输出，所以你的组件不会经常需要操作它。然而，有时你可能需要访问由React管理的DOM元素--例如，聚焦一个节点，滚动到它，或测量它的大小和位置。在React中没有内置的方法来做这些事情，所以你将需要一个指向DOM节点的 *ref* 。
 
 </Intro>
 
 <YouWillLearn>
 
-- How to access a DOM node managed by React with the `ref` attribute
-- How the `ref` JSX attribute relates to the `useRef` Hook
-- How to access another component's DOM node
-- In which cases it's safe to modify the DOM managed by React
+- 如何用JSX的 `ref` 属性访问由React管理的DOM节点
+- JSX的`ref` 属性与 `useRef` Hook的关系
+- 如何访问另一个组件的DOM节点
+- 在哪些情况下，修改React管理的DOM是安全的
 
 </YouWillLearn>
 
-## Getting a ref to the node {/*getting-a-ref-to-the-node*/}
+## 获取节点的引用 {/*getting-a-ref-to-the-node*/}
 
-To access a DOM node managed by React, first, import the `useRef` Hook:
+要访问一个由React管理的DOM节点，首先要导入 `useRef` Hook：
 
 ```js
 import { useRef } from 'react';
 ```
 
-Then, use it to declare a ref inside your component:
+然后，用它来声明你的组件中的一个 ref ：
 
 ```js
 const myRef = useRef(null);
 ```
 
-Finally, pass it to the DOM node as the `ref` attribute:
+最后，将其作为 `ref` 属性传递给DOM节点：
 
 ```js
 <div ref={myRef}>
 ```
 
-The `useRef` Hook returns an object with a single property called `current`. Initially, `myRef.current` will be `null`. When React creates a DOM node for this `<div>`, React will put a reference to this node into `myRef.current`. You can then access this DOM node from your [event handlers](/learn/responding-to-events) and use the built-in [browser APIs](https://developer.mozilla.org/docs/Web/API/Element) defined on it.
+`useRef` Hook会返回一个具有单一属性的对象，该属性名为 `current` 。最初，`myRef.current` 将为 `null` 。当React为这个 `<div>` 创建一个DOM节点时，React会把这个节点的引用放入 `myRef.current` 。然后你可以从你的[事件处理程序](/learn/responding-to-events)中访问这个DOM节点，并使用定义在它上面的内置[浏览器API](https://developer.mozilla.org/docs/Web/API/Element)。
 
 ```js
 // You can use any browser APIs, for example:
 myRef.current.scrollIntoView();
 ```
 
-### Example: Focusing a text input {/*example-focusing-a-text-input*/}
+### 案例：聚焦一个文本输入 {/*example-focusing-a-text-input*/}
 
-In this example, clicking the button will focus the input:
+在这个例子中，点击按钮将聚焦输入：
 
 <Sandpack>
 
@@ -73,18 +73,18 @@ export default function Form() {
 
 </Sandpack>
 
-To implement this:
+为了实现这一功能：
 
-1. Declare `inputRef` with the `useRef` Hook.
-2. Pass it as `<input ref={inputRef}>`. This tells React to **put this `<input>`'s DOM node into `inputRef.current`.**
-3. In the `handleClick` function, read the input DOM node from `inputRef.current` and call [`focus()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus) on it with `inputRef.current.focus()`.
-4. Pass the `handleClick` event handler to `<button>` with `onClick`.
+1. 用 `useRef` Hook声明 `inputRef`。
+2. 将其作为 `<input ref={inputRef}>` 传递。这告诉React**把这个 `<input>` 的DOM节点放入 `inputRef.current` 。**
+3. 在 `handleClick` 函数中，从 `inputRef.current` 中读取输入的DOM节点，并用 `inputRef.current.focus()` 对其调用[`focus()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus)方法。
+4. 将 `handleClick` 事件处理程序绑定到 `<button>` 的 `onClick` 事件上 。
 
-While DOM manipulation is the most common use case for refs, the `useRef` Hook can be used for storing other things outside React, like timer IDs. Similarly to state, refs remain between renders. Refs are like state variables that don't trigger re-renders when you set them. For an introduction to refs, see [Referencing Values with Refs.](/learn/referencing-values-with-refs)
+虽然DOM操作是 ref 最常见的用例，但 `useRef` Hook也可以用来存储React之外的其他东西，比如 timer ID。与 state 类似，ref 在渲染之间保持不变，但是与 state 不同的是，当你设置它们时不会触发重新渲染。关于 ref 的介绍，请看 [用 ref 来引用数值](/learn/referencing-values-with-refs) 一章。
 
-### Example: Scrolling to an element {/*example-scrolling-to-an-element*/}
+### 案例：滚动到一个元素 {/*example-scrolling-to-an-element*/}
 
-You can have more than a single ref in a component. In this example, there is a carousel of three images. Each button centers an image by calling the browser [`scrollIntoView()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView) method the corresponding DOM node:
+你可以在一个组件中拥有多于一个的 ref 。在这个例子中，有一个三张图片的幻灯片。每个按钮都通过调用相应的DOM节点的[ `scrollIntoView()` ](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView)方法将一个图片置于中心位置：
 
 <Sandpack>
 
@@ -193,9 +193,9 @@ li {
 
 <DeepDive>
 
-#### How to manage a list of refs using a ref callback {/*how-to-manage-a-list-of-refs-using-a-ref-callback*/}
+#### 如何使用 ref 回调来管理一系列的 ref {/*how-to-manage-a-list-of-refs-using-a-ref-callback*/}
 
-In the above examples, there is a predefined number of refs. However, sometimes you might need a ref to each item in the list, and you don't know how many you will have. Something like this **wouldn't work**:
+在上面的例子中，我们是提前知道 ref 的数量的。然而，有时你可能需要对列表中的每一个项目绑定 ref ，而你不知道你会有多少个。像这样的东西就**不能用** 了：
 
 ```js
 <ul>
@@ -207,13 +207,13 @@ In the above examples, there is a predefined number of refs. However, sometimes 
 </ul>
 ```
 
-This is because **Hooks must only be called at the top-level of your component.** You can't call `useRef` in a loop, in a condition, or inside a `map()` call.
+这是因为 Hook 必须**只在你的组件的顶层调用**。你不能在一个循环中、在一个条件中或在一个 `map()` 调用中调用 `useRef`。
 
-One possible way around this is to get a single ref to their parent element, and then use DOM manipulation methods like [`querySelectorAll`](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll) to "find" the individual child nodes from it. However, this is brittle and can break if your DOM structure changes.
+一个可能的方法是获得他们的父元素的单一引用，然后使用DOM操作方法，如[ `querySelectorAll` ](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll)，从中 “找到” 单个子节点。然而，这是很脆弱的，如果你的DOM结构发生变化，就会出现问题。
 
-Another solution is to **pass a function to the `ref` attribute.** This is called a [`ref` callback.](/reference/react-dom/components/common#ref-callback) React will call your ref callback with the DOM node when it's time to set the ref, and with `null` when it's time to clear it. This lets you maintain your own array or a [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map), and access any ref by its index or some kind of ID.
+另一个解决方案是**向 `ref` 属性传递一个函数**。这被称为[`ref` callback](/reference/react-dom/components/common#ref-callback)。React 会在设置 ref 的时候用 DOM 节点调用你的 ref 回调，而在清除 ref 的时候则用 `null`。这让你可以维护你自己的数组或[ Map ](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map)，并通过其索引或某种ID来访问任何引用。
 
-This example shows how you can use this approach to scroll to an arbitrary node in a long list:
+这个例子显示了如何使用这种方法来滚动到长列表中的任意节点：
 
 <Sandpack>
 
@@ -318,7 +318,7 @@ li {
 
 </Sandpack>
 
-In this example, `itemsRef` doesn't hold a single DOM node. Instead, it holds a [Map](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Map) from item ID to a DOM node. ([Refs can hold any values!](/learn/referencing-values-with-refs)) The [`ref` callback](/reference/react-dom/components/common#ref-callback) on every list item takes care to update the Map:
+在这个例子中，`itemsRef` 并没有持有一个单独的 DOM 节点。相反，它持有一个从项目 ID 到 DOM 节点的 [Map](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Map)。([ref 可以持有任何值！](/learn/referencing-values-with-refs))每个列表项的 ref 回调都会注意更新Map：
 
 ```js
 <li
@@ -336,15 +336,15 @@ In this example, `itemsRef` doesn't hold a single DOM node. Instead, it holds a 
 >
 ```
 
-This lets you read individual DOM nodes from the Map later.
+这让你以后可以从 Map 中读取单个 DOM 节点。
 
 </DeepDive>
 
-## Accessing another component's DOM nodes {/*accessing-another-components-dom-nodes*/}
+## 访问另一个组件的 DOM 节点 {/*accessing-another-components-dom-nodes*/}
 
-When you put a ref on a built-in component that outputs a browser element like `<input />`, React will set that ref's `current` property to the corresponding DOM node (such as the actual `<input />` in the browser).
+当你在一个输出浏览器元素（如 `<input />` ）的内置组件上放一个 ref，React将把该 ref 的 `current` 属性设置为相应的 DOM 节点（如浏览器中实际的 `<input />` ）。
 
-However, if you try to put a ref on **your own** component, like `<MyInput />`, by default you will get `null`. Here is an example demonstrating it. Notice how clicking the button **does not** focus the input:
+然而，如果你试图在**你自己**的组件上放一个 ref，比如 `<MyInput />` ，默认情况下你会得到 `null` 。下面是一个演示的例子。请注意，点击按钮**并不能**聚焦输入：
 
 <Sandpack>
 
@@ -375,7 +375,7 @@ export default function MyForm() {
 
 </Sandpack>
 
-To help you notice the issue, React also prints an error to the console:
+为了帮助你注意到这个问题，React也会向控制台打印出一个错误：
 
 <ConsoleBlock level="error">
 
@@ -383,9 +383,9 @@ Warning: Function components cannot be given refs. Attempts to access this ref w
 
 </ConsoleBlock>
 
-This happens because by default React does not let a component access the DOM nodes of other components. Not even for its own children! This is intentional. Refs are an escape hatch that should be used sparingly. Manually manipulating _another_ component's DOM nodes makes your code even more fragile.
+发生这种情况是因为默认情况下，React不允许一个组件访问其他组件的 DOM 节点。即使是它自己的孩子也不行。这是故意的。ref 是一个逃生舱口，应该少用。手动操作其他组件的 DOM 节点会使你的代码更加脆弱。
 
-Instead, components that _want_ to expose their DOM nodes have to **opt in** to that behavior. A component can specify that it "forwards" its ref to one of its children. Here's how `MyInput` can use the `forwardRef` API:
+相反，_想要_ 暴露其DOM节点的组件必须**选择**这种行为：一个组件可以指定把它的 ref “转发” 给它的一个子节点。想要实现这种行为，我们可以使用 `forwardRef` API。下面是 `MyInput` 使用 `forwardRef`  API的例子：
 
 ```js
 const MyInput = forwardRef((props, ref) => {
@@ -393,13 +393,13 @@ const MyInput = forwardRef((props, ref) => {
 });
 ```
 
-This is how it works:
+这是它的工作流程：
 
-1. `<MyInput ref={inputRef} />` tells React to put the corresponding DOM node into `inputRef.current`. However, it's up to the `MyInput` component to opt into that--by default, it doesn't.
-2. The `MyInput` component is declared using `forwardRef`. **This opts it into receiving the `inputRef` from above as the second `ref` argument** which is declared after `props`.
-3. `MyInput` itself passes the `ref` it received to the `<input>` inside of it.
+1. `<MyInput ref={inputRef} />` 告诉React将相应的 DOM 节点放入 `inputRef.current` 。然而，这取决于 `MyInput` 组件的选择——默认情况下，它没有选择。
+2. `MyInput` 组件是用 `forwardRef` 声明的。**这使它选择接收上面的 `inputRef` 作为第二个 ref 参数**，这个参数是在 props 之后声明的。
+3. `MyInput` 本身将它收到的 `ref` 传递给它里面的 `<input>` 。
 
-Now clicking the button to focus the input works:
+现在，点击按钮来聚焦输入就可以工作了：
 
 <Sandpack>
 
@@ -430,13 +430,13 @@ export default function Form() {
 
 </Sandpack>
 
-In design systems, it is a common pattern for low-level components like buttons, inputs, and so on, to forward their refs to their DOM nodes. On the other hand, high-level components like forms, lists, or page sections usually won't expose their DOM nodes to avoid accidental dependencies on the DOM structure.
+在设计系统中，像按钮、输入等低级组件的常见模式是将它们的 ref 转发给它们的 DOM 节点。另一方面，像表单、列表或页面部分这样的高级组件通常不会暴露它们的 DOM 节点，以避免对 DOM 结构的意外依赖。
 
 <DeepDive>
 
-#### Exposing a subset of the API with an imperative handle {/*exposing-a-subset-of-the-api-with-an-imperative-handle*/}
+#### 用 `useImperativeHandle` 暴露一个API的子集 {/*exposing-a-subset-of-the-api-with-an-imperative-handle*/}
 
-In the above example, `MyInput` exposes the original DOM input element. This lets the parent component call `focus()` on it. However, this also lets the parent component do something else--for example, change its CSS styles. In uncommon cases, you may want to restrict the exposed functionality. You can do that with `useImperativeHandle`:
+在上面的例子中，`MyInput` 暴露了原始的 DOM 输入元素。这让父级组件对它调用 `focus()` 。然而，这也让父组件可以做一些其他的事情--例如，改变它的 CSS 样式。在特殊情况下，你可能想要限制暴露的功能。这时候你就可以用 `useImperativeHandle` 做到这一点：
 
 <Sandpack>
 
@@ -478,28 +478,28 @@ export default function Form() {
 
 </Sandpack>
 
-Here, `realInputRef` inside `MyInput` holds the actual input DOM node. However, `useImperativeHandle` instructs React to provide your own special object as the value of a ref to the parent component. So `inputRef.current` inside the `Form` component will only have the `focus` method. In this case, the ref "handle" is not the DOM node, but the custom object you create inside `useImperativeHandle` call.
+这里，`MyInput` 里面的 `realInputRef` 持有实际的 input DOM 节点的引用。然而，`useImperativeHandle` 指示React提供你自己的特殊对象作为到父组件的 ref 值。所以 `Form` 组件内的 `inputRef.current` 将只有 `focus` 方法。在这种情况下，ref 绑定的不是DOM节点，而是你在 `useImperativeHandle` 调用中创建的自定义对象。
 
 </DeepDive>
 
-## When React attaches the refs {/*when-react-attaches-the-refs*/}
+## React 什么时候为 ref 绑定 DOM {/*when-react-attaches-the-refs*/}
 
-In React, every update is split in [two phases](/learn/render-and-commit#step-3-react-commits-changes-to-the-dom):
+在React中，每次更新都被分成[两个阶段](/learn/render-and-commit#step-3-react-commits-changes-to-the-dom)：
 
-* During **render,** React calls your components to figure out what should be on the screen.
-* During **commit,** React applies changes to the DOM.
+* 在**渲染**过程中，React调用你的组件来确定屏幕上应该出现什么。
+* 在**提交**过程中，React将变化应用到 DOM 中。
 
-In general, you [don't want](/learn/referencing-values-with-refs#best-practices-for-refs) to access refs during rendering. That goes for refs holding DOM nodes as well. During the first render, the DOM nodes have not yet been created, so `ref.current` will be `null`. And during the rendering of updates, the DOM nodes haven't been updated yet. So it's too early to read them.
+一般来说，你[不希望](/learn/referencing-values-with-refs#best-practices-for-refs)在渲染过程中访问 ref ，这对持有 DOM 节点的 ref 也是如此。在第一次渲染时，DOM 节点还没有被创建，所以 `ref.current` 将为 `null` 。而在更新的渲染过程中，DOM 节点还没有被更新，所以现在读取它们也还为时过早。
 
-React sets `ref.current` during the commit. Before updating the DOM, React sets the affected `ref.current` values to `null`. After updating the DOM, React immediately sets them to the corresponding DOM nodes.
+React在提交过程中设置 `ref.current` 。在更新DOM之前，React将受影响的 `ref.current` 值设置为 `null` 。更新DOM后，React立即将它们设置为相应的 DOM 节点。
 
-**Usually, you will access refs from event handlers.** If you want to do something with a ref, but there is no particular event to do it in, you might need an Effect. We will discuss effects on the next pages.
+**通常情况下，你会从事件处理程序中访问 ref 。** 如果你想对一个 ref 做一些事情，但没有特别的事件可以触发，这时候你可能需要一个 Effect。我们将在接下来的几页中讨论 Effect。
 
 <DeepDive>
 
-#### Flushing state updates synchronously with flushSync {/*flushing-state-updates-synchronously-with-flush-sync*/}
+#### 用 `flushSync` 同步地更新状态 {/*flushing-state-updates-synchronously-with-flush-sync*/}
 
-Consider code like this, which adds a new todo and scrolls the screen down to the last child of the list. Notice how, for some reason, it always scrolls to the todo that was *just before* the last added one:
+考虑一下这样的代码，它添加了一个新的 todo ，并将屏幕向下滚动到列表的最后一个 task 。请注意，由于某些原因，它总是滚动到在最后一个添加的 task 之前的那个 task ：
 
 <Sandpack>
 
@@ -553,16 +553,16 @@ for (let i = 0; i < 20; i++) {
 
 </Sandpack>
 
-The issue is with these two lines:
+问题出在这两行上：
 
 ```js
 setTodos([ ...todos, newTodo]);
 listRef.current.lastChild.scrollIntoView();
 ```
 
-In React, [state updates are queued.](/learn/queueing-a-series-of-state-updates) Usually, this is what you want. However, here it causes a problem because `setTodos` does not immediately update the DOM. So the time you scroll the list to its last element, the todo has not yet been added. This is why scrolling always "lags behind" by one item.
+在React中，[状态更新是排队的](/learn/queueing-a-series-of-state-updates)。通常情况下，这是你想要的。然而，在这里它引起了一个问题，因为 `setTodos` 并不立即更新DOM。所以当你把列表滚动到最后一个元素时，该 todo 还没有被添加。这就是为什么滚动总是 “滞后” 一个 item 的原因。
 
-To fix this issue, you can force React to update ("flush") the DOM synchronously. To do this, import `flushSync` from `react-dom` and **wrap the state update** into a `flushSync` call:
+为了解决这个问题，你可以强制React同步更新（ “flush” ）DOM。要做到这一点，从 `react-dom` 中导入 `flushSync` ，并将**状态更新包装**成一个 `flushSync` 回调：
 
 ```js
 flushSync(() => {
@@ -571,7 +571,7 @@ flushSync(() => {
 listRef.current.lastChild.scrollIntoView();
 ```
 
-This will instruct React to update the DOM synchronously right after the code wrapped in `flushSync` executes. As a result, the last todo will already be in the DOM by the time you try to scroll to it:
+这将指示React在 `flushSync` 包装的代码执行后同步更新 DOM。因此，当你试图滚动到最后一个 todo 时，它已经在 DOM 中了：
 
 <Sandpack>
 
@@ -630,7 +630,7 @@ for (let i = 0; i < 20; i++) {
 
 </DeepDive>
 
-## Best practices for DOM manipulation with refs {/*best-practices-for-dom-manipulation-with-refs*/}
+## 使用 ref 进行 DOM 操作的最佳实践 {/*best-practices-for-dom-manipulation-with-refs*/}
 
 Refs are an escape hatch. You should only use them when you have to "step outside React". Common examples of this include managing focus, scroll position, or calling browser APIs that React does not expose.
 
