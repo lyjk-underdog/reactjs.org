@@ -632,13 +632,13 @@ for (let i = 0; i < 20; i++) {
 
 ## 使用 ref 进行 DOM 操作的最佳实践 {/*best-practices-for-dom-manipulation-with-refs*/}
 
-Refs are an escape hatch. You should only use them when you have to "step outside React". Common examples of this include managing focus, scroll position, or calling browser APIs that React does not expose.
+ref 是一个逃生舱口。你应该只在你必须 “走出React” 的时候使用它们。常见的例子包括管理焦点、滚动位置，或者调用React没有公开的浏览器API。
 
-If you stick to non-destructive actions like focusing and scrolling, you shouldn't encounter any problems. However, if you try to **modify** the DOM manually, you can risk conflicting with the changes React is making.
+如果你坚持做非破坏性的操作，比如聚焦和滚动，你应该不会遇到任何问题。然而，如果你试图**手动修改**DOM，你就有可能与React正在进行的修改发生冲突。
 
-To illustrate this problem, this example includes a welcome message and two buttons. The first button toggles its presence using [conditional rendering](/learn/conditional-rendering) and [state](/learn/state-a-components-memory), as you would usually do in React. The second button uses the [`remove()` DOM API](https://developer.mozilla.org/en-US/docs/Web/API/Element/remove) to forcefully remove it from the DOM outside of React's control.
+为了说明这个问题，这个例子包括一条欢迎信息和两个按钮。第一个按钮使用[条件渲染](/learn/conditional-rendering)和[状态](/learn/state-a-components-memory)来切换它的存在，就像你在React中通常会做的那样。第二个按钮使用[`remove()` DOM API](https://developer.mozilla.org/en-US/docs/Web/API/Element/remove)将其从React控制之外的DOM中强行删除。
 
-Try pressing "Toggle with setState" a few times. The message should disappear and appear again. Then press "Remove from the DOM". This will forcefully remove it. Finally, press "Toggle with setState":
+试着按几次 “Toggle with setState”。信息应该会消失并再次出现。然后按 “Remove from the DOM”。这将强行删除它。最后，按 “Toggle with setState”。
 
 <Sandpack>
 
@@ -679,20 +679,20 @@ button {
 
 </Sandpack>
 
-After you've manually removed the DOM element, trying to use `setState` to show it again will lead to a crash. This is because you've changed the DOM, and React doesn't know how to continue managing it correctly.
+在你手动删除DOM元素后，试图使用 `setState` 再次显示它将导致崩溃。这是因为你已经改变了DOM，而React不知道如何继续正确管理它。
 
-**Avoid changing DOM nodes managed by React.** Modifying, adding children to, or removing children from elements that are managed by React can lead to inconsistent visual results or crashes like above.
+**避免改变由React管理的DOM节点**。对React管理的元素进行修改、添加子元素或删除子元素，会导致不一致的视觉效果或像上面那样的崩溃。
 
-However, this doesn't mean that you can't do it at all. It requires caution. **You can safely modify parts of the DOM that React has _no reason_ to update.** For example, if some `<div>` is always empty in the JSX, React won't have a reason to touch its children list. Therefore, it is safe to manually add or remove elements there.
+然而，这并不意味着你根本就不能做。它需要谨慎行事。**你可以安全地修改DOM中那些React没有理由更新的部分。** 例如，如果某个 `<div>` 在JSX中总是空的，React就没有理由去碰它的子列表。因此，在那里手动添加或删除元素是安全的。
 
 <Recap>
 
-- Refs are a generic concept, but most often you'll use them to hold DOM elements.
-- You instruct React to put a DOM node into `myRef.current` by passing `<div ref={myRef}>`.
-- Usually, you will use refs for non-destructive actions like focusing, scrolling, or measuring DOM elements.
-- A component doesn't expose its DOM nodes by default. You can opt into exposing a DOM node by using `forwardRef` and passing the second `ref` argument down to a specific node.
-- Avoid changing DOM nodes managed by React.
-- If you do modify DOM nodes managed by React, modify parts that React has no reason to update.
+- ref 是一个通用的概念，但大多数情况下你会用它们来保存DOM元素。
+- 你通过传递 `<div ref={myRef}>` 来指示React将一个DOM节点放入 `myRef.current` 。
+- 通常情况下，你会使用 ref 来进行非破坏性的操作，如聚焦、滚动或测量DOM元素。
+- 一个组件在默认情况下不会暴露其DOM节点。你可以通过使用 `forwardRef` 并将第二个 ref 参数传递给一个特定的节点来选择暴露一个DOM节点。
+- 避免改变由React管理的DOM节点。
+- 如果你确实修改了由React管理的DOM节点，请修改那些React没有理由更新的部分。
 
 </Recap>
 
@@ -700,9 +700,9 @@ However, this doesn't mean that you can't do it at all. It requires caution. **Y
 
 <Challenges>
 
-#### Play and pause the video {/*play-and-pause-the-video*/}
+#### 播放和暂停视频 {/*play-and-pause-the-video*/}
 
-In this example, the button toggles a state variable to switch between a playing and a paused state. However, in order to actually play or pause the video, toggling state is not enough. You also need to call [`play()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play) and [`pause()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/pause) on the DOM element for the `<video>`. Add a ref to it, and make the button work.
+在这个例子中，点击按钮会在播放和暂停的状态之间进行切换。然而，为了实际播放或暂停视频，切换状态是不够的。你还需要在 `<video>` 的DOM元素上调用[`play()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play)和[`pause()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/pause)。给它添加一个 ref ，并使按钮工作。
 
 <Sandpack>
 
@@ -739,11 +739,11 @@ button { display: block; margin-bottom: 20px; }
 
 </Sandpack>
 
-For an extra challenge, keep the "Play" button in sync with whether the video is playing even if the user right-clicks the video and plays it using the built-in browser media controls. You might want to listen to `onPlay` and `onPause` on the video to do that.
+要注意的一点是，即使用户使用了内置的浏览器媒体控件来进行播放，也要保持其状态是同步的。你可能想监听视频上的 `onPlay` 和 `onPause` 来做到这一点。
 
 <Solution>
 
-Declare a ref and put it on the `<video>` element. Then call `ref.current.play()` and `ref.current.pause()` in the event handler depending on the next state.
+声明一个 ref 并把它放在 `<video>` 元素上。然后根据下一个状态在事件处理程序中调用 `ref.current.play()` 和 `ref.current.pause()`。
 
 <Sandpack>
 
@@ -792,13 +792,13 @@ button { display: block; margin-bottom: 20px; }
 
 </Sandpack>
 
-In order to handle the built-in browser controls, you can add `onPlay` and `onPause` handlers to the `<video>` element and call `setIsPlaying` from them. This way, if the user plays the video using the browser controls, the state will adjust accordingly.
+为了处理内置的浏览器控件，你可以在 `<video>` 元素中添加 `onPlay` 和 `onPause` 处理程序，并从中调用 `setIsPlaying` 。这样一来，如果用户使用浏览器控件播放视频，状态就会相应调整。
 
 </Solution>
 
-#### Focus the search field {/*focus-the-search-field*/}
+#### 聚焦搜索框 {/*focus-the-search-field*/}
 
-Make it so that clicking the "Search" button puts focus into the field.
+实现点击 “Search” 按钮就能将焦点放到该搜索框的功能。
 
 <Sandpack>
 
@@ -825,7 +825,7 @@ button { display: block; margin-bottom: 10px; }
 
 <Solution>
 
-Add a ref to the input, and call `focus()` on the DOM node to focus it:
+为输入添加一个 ref ，并在DOM节点上调用 `focus()` 来聚焦它：
 
 <Sandpack>
 
@@ -860,9 +860,9 @@ button { display: block; margin-bottom: 10px; }
 
 </Solution>
 
-#### Scrolling an image carousel {/*scrolling-an-image-carousel*/}
+#### 滚动图片轮播图 {/*scrolling-an-image-carousel*/}
 
-This image carousel has a "Next" button that switches the active image. Make the gallery scroll horizontally to the active image on click. You will want to call [`scrollIntoView()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView) on the DOM node of the active image:
+这个图片轮播图有一个 “Next” 按钮，可以切换活动图片。在点击时使画廊水平滚动到活动图片。你要在活动图片的DOM节点上调用[`scrollIntoView()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView)：
 
 ```js
 node.scrollIntoView({
@@ -874,7 +874,7 @@ node.scrollIntoView({
 
 <Hint>
 
-You don't need to have a ref to every image for this exercise. It should be enough to have a ref to the currently active image, or to the list itself. Use `flushSync` to ensure the DOM is updated *before* you scroll.
+在这个练习中，你不需要对每张图片都有一个引用。有一个指向当前活动图片的引用，或者指向列表本身，就足够了。使用 `flushSync` 来确保DOM在你滚动之前被更新。
 
 </Hint>
 
@@ -969,15 +969,15 @@ img {
 
 <Solution>
 
-You can declare a `selectedRef`, and then pass it conditionally only to the current image:
+你可以声明一个 `selectedRef` ，然后有条件地将其只传递给当前图像：
 
 ```js
 <li ref={index === i ? selectedRef : null}>
 ```
 
-When `index === i`, meaning that the image is the selected one, the `<li>` will receive the `selectedRef`. React will make sure that `selectedRef.current` always points at the correct DOM node.
+当 `index === i` 时，意味着该图像是被选中的，`<li>` 将收到 `selectedRef` 。React将确保 `selectedRef.current` 总是指向正确的DOM节点。
 
-Note that the `flushSync` call is necessary to force React to update the DOM before the scroll. Otherwise, `selectedRef.current` would always point at the previously selected item.
+请注意，`flushSync` 调用是必要的，以迫使React在滚动之前更新DOM。否则， `selectedRef.current` 会一直指向之前选择的项目。
 
 <Sandpack>
 
@@ -1086,13 +1086,13 @@ img {
 
 </Solution>
 
-#### Focus the search field with separate components {/*focus-the-search-field-with-separate-components*/}
+#### 用独立的组件聚焦搜索框 {/*focus-the-search-field-with-separate-components*/}
 
-Make it so that clicking the "Search" button puts focus into the field. Note that each component is defined in a separate file and shouldn't be moved out of it. How do you connect them together?
+使之成为点击 “Search” 按钮时将焦点放在该字段上。注意，每个组件都是在一个单独的文件中定义的，不应该从文件中移出。你如何将它们连接在一起？
 
 <Hint>
 
-You'll need `forwardRef` to opt into exposing a DOM node from your own component like `SearchInput`.
+你需要 `forwardRef` 来选择从 `SearchInput` 组件中暴露 DOM 节点。
 
 </Hint>
 
@@ -1142,7 +1142,7 @@ button { display: block; margin-bottom: 10px; }
 
 <Solution>
 
-You'll need to add an `onClick` prop to the `SearchButton`, and make the `SearchButton` pass it down to the browser `<button>`. You'll also pass a ref down to `<SearchInput>`, which will forward it to the real `<input>` and populate it. Finally, in the click handler, you'll call `focus` on the DOM node stored inside that ref.
+你需要给 `SearchButton` 添加一个 `onClick` 的 prop ，并使 `SearchButton` 把它传递给 `<button>`。你也要把一个 ref 传递给 `<SearchInput>`，它将转发到真正的 `<input>` 并填充它。最后，在点击处理程序中，你将对存储在该 ref 中的 DOM 节点调用 `focus` 方法。
 
 <Sandpack>
 

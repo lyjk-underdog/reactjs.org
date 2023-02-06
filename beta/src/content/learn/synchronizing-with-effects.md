@@ -1,65 +1,65 @@
 ---
-title: 'Synchronizing with Effects'
+title: '用 Effect 进行同步'
 ---
 
 <Intro>
 
-Some components need to synchronize with external systems. For example, you might want to control a non-React component based on the React state, set up a server connection, or send an analytics log when a component appears on the screen. *Effects* let you run some code after rendering so that you can synchronize your component with some system outside of React.
+有些组件需要与外部系统同步。例如，你可能想根据React状态来控制一个非React组件，建立一个服务器连接，或者当一个组件出现在屏幕上时发送一个分析日志。*Effect* 让你在渲染后运行一些代码，这样你就可以将你的组件与React之外的一些系统同步。
 
 </Intro>
 
 <YouWillLearn>
 
-- What Effects are
-- How Effects are different from events
-- How to declare an Effect in your component
-- How to skip re-running an Effect unnecessarily
-- Why Effects run twice in development and how to fix them
+- 什么是 Effect
+- Effect 与 Event 有什么不同
+- 如何在你的组件中声明一个 Effect
+- 如何避免不必要地重新运行一个 Effect
+- 为什么 Effect 在开发中会运行两次以及如何解决这个问题？
 
 </YouWillLearn>
 
-## What are Effects and how are they different from events? {/*what-are-effects-and-how-are-they-different-from-events*/}
+## 什么是 Effect，它们与 Event 有什么不同？ {/*what-are-effects-and-how-are-they-different-from-events*/}
 
-Before getting to Effects, you need to be familiar with two types of logic inside React components:
+在讨论 Effect 之前，你需要熟悉React组件内部的两类逻辑：
 
-- **Rendering code** (introduced in [Describing the UI](/learn/describing-the-ui)) lives at the top level of your component. This is where you take the props and state, transform them, and return the JSX you want to see on the screen. [Rendering code must be pure.](/learn/keeping-components-pure) Like a math formula, it should only _calculate_ the result, but not do anything else.
+- **渲染代码**（在[描述用户界面](/learn/describing-the-ui)中介绍）位于组件的顶层。这是你获取 prop 和 state，转换它们，并返回你想在屏幕上看到的JSX的地方。渲染代码必须是纯粹的。就像一个数学公式，它应该只计算结果，而不做其他事情。
 
-- **Event handlers** (introduced in [Adding Interactivity](/learn/adding-interactivity)) are nested functions inside your components that *do* things rather than just calculate them. An event handler might update an input field, submit an HTTP POST request to buy a product, or navigate the user to another screen. Event handlers contain ["side effects"](https://en.wikipedia.org/wiki/Side_effect_(computer_science)) (they change the program's state) and are caused by a specific user action (for example, a button click or typing).
+- **事件处理程序**（在[添加交互性](/learn/adding-interactivity)中介绍）是嵌套在你的组件中的函数，它可以做一些事情，而不仅仅是计算它们。一个事件处理程序可能会更新一个输入字段，提交一个 HTTP POST 请求来购买产品，或者将用户导航到另一个屏幕。事件处理程序包含 “副作用”（它们改变了程序的状态），并且是由特定的用户行为（例如，点击按钮或打字）引起。
 
-Sometimes this isn't enough. Consider a `ChatRoom` component that must connect to the chat server whenever it's visible on the screen. Connecting to a server is not a pure calculation (it's a side effect) so it can't happen during rendering. However, there is no single particular event like a click that causes `ChatRoom` to be displayed.
+有时这还不够。考虑一个 `ChatRoom` 组件，只要它在屏幕上可见，就必须连接到聊天服务器。连接到服务器不是一个纯粹的计算（它是一个副作用），所以它不可能在渲染过程中发生。然而，并没有像点击那样的单一特定事件导致 `ChatRoom` 被显示。
 
-***Effects* let you specify side effects that are caused by rendering itself, rather than by a particular event.** Sending a message in the chat is an *event* because it is directly caused by the user clicking a specific button. However, setting up a server connection is an *Effect* because it needs to happen regardless of which interaction caused the component to appear. Effects run at the end of the [rendering process](/learn/render-and-commit) after the screen updates. This is a good time to synchronize the React components with some external system (like network or a third-party library).
+***Effect*可以让你指定由渲染本身引起的副作用，而不是由某个特定事件引起的。** 在聊天中发送消息是一个*事件*，因为它是由用户点击一个特定按钮直接引起的。然而，设置一个服务器连接是一个*Effect*，因为它需要发生，不管是哪种交互导致组件出现。Effect 在屏幕更新后的[渲染过程](/learn/render-and-commit)结束时运行（相当于是 onMounted 生命周期）。这是一个将React组件与一些外部系统（如网络或第三方库）同步的好时机。
 
 <Note>
 
-Here and later in this text, capitalized "Effect" refers to the React-specific definition above, i.e. a side effect caused by rendering. To refer to the broader programming concept, we'll say "side effect".
+在这里和后面的文字中，大写的 “Effect” 指的是上面React的特定定义，即由渲染引起的副作用。为了指代更广泛的编程概念，我们会说 “副作用”。
 
 </Note>
 
 
-## You might not need an Effect {/*you-might-not-need-an-effect*/}
+## 你可能不需要 Effect {/*you-might-not-need-an-effect*/}
 
-**Don't rush to add Effects to your components.** Keep in mind that Effects are typically used to "step out" of your React code and synchronize with some *external* system. This includes browser APIs, third-party widgets, network, and so on. If your Effect only adjusts some state based on other state, [you might not need an Effect.](/learn/you-might-not-need-an-effect)
+**不要急于为你的组件添加 Effect。** 请记住，Effect 通常用于 “走出” 你的React代码并与一些外部系统同步。这包括浏览器API、第三方小工具、网络等等。如果你的 Effect 只是根据其他状态来调整一些状态，[你可能不需要Effect。](/learn/you-might-not-need-an-effect)
 
-## How to write an Effect {/*how-to-write-an-effect*/}
+## 如何编写 Effect {/*how-to-write-an-effect*/}
 
-To write an Effect, follow these three steps:
+要写一个 Effect，请遵循以下三个步骤：
 
-1. **Declare an Effect.** By default, your Effect will run after every render.
-2. **Specify the Effect dependencies.** Most Effects should only re-run *when needed* rather than after every render. For example, a fade-in animation should only trigger when a component appears. Connecting and disconnecting to a chat room should only happen when the component appears and disappears, or when the chat room changes. You will learn how to control this by specifying *dependencies.*
-3. **Add cleanup if needed.** Some Effects need to specify how to stop, undo, or clean up whatever they were doing. For example, "connect" needs "disconnect", "subscribe" needs "unsubscribe", and "fetch" needs either "cancel" or "ignore". You will learn how to do this by returning a *cleanup function*.
+1. **声明一个 Effect。** 默认情况下，你的效果将在每次渲染后运行。
+2. **指定 Effect 的依赖项。** 大多数 Effetc 应该只在需要的时候重新运行，而不是在每次渲染之后。例如，淡入动画应该只在一个组件出现时触发。聊天室的连接和断开应该只在组件出现和消失时发生，或者在聊天室改变时发生。你将学习如何通过指定*依赖项*来控制这一点。
+3. **如果需要的话，添加清理功能。** 一些 Effect 需要指定如何停止、撤销或清理它们正在做的事情。例如，“connect” 需要 “disconnect”，“subscribe” 需要 “unsubscribe”，而 “fetch” 需要 “cancel” 或  “ignore”。你将学习如何通过返回一个 *清理函数* 来做到这一点。
 
-Let's look at each of these steps in detail.
+让我们详细看看这些步骤中的每一步。
 
-### Step 1: Declare an Effect {/*step-1-declare-an-effect*/}
+### Step 1: 声明一个 Effect {/*step-1-declare-an-effect*/}
 
-To declare an Effect in your component, import the [`useEffect` Hook](/reference/react/useEffect) from React:
+要在你的组件中声明一个 Effect，从React导入[`useEffect` Hook](/reference/react/useEffect)：
 
 ```js
 import { useEffect } from 'react';
 ```
 
-Then, call it at the top level of your component and put some code inside your Effect:
+然后，在你的组件的顶层调用它，并在你的 Effect 里面放一些代码：
 
 ```js {2-4}
 function MyComponent() {
@@ -70,15 +70,15 @@ function MyComponent() {
 }
 ```
 
-Every time your component renders, React will update the screen *and then* run the code inside `useEffect`. In other words, **`useEffect` "delays" a piece of code from running until that render is reflected on the screen.**
+每次你的组件渲染时，React会更新屏幕，*然后*运行 `useEffect` 里面的代码。换句话说，**`useEffect` “推迟” 了一段代码的运行，直到渲染反映在屏幕上。**
 
-Let's see how you can use an Effect to synchronize with an external system. Consider a `<VideoPlayer>` React component. It would be nice to control whether it's playing or paused by passing an `isPlaying` prop to it:
+让我们看看如何使用一个 Effect 来与外部系统同步。考虑一个 `<VideoPlayer>` React组件。如果能通过传递一个 `isPlaying` prop 来控制它是在播放还是暂停，那就更好了：
 
 ```js
 <VideoPlayer isPlaying={isPlaying} />;
 ```
 
-Your custom `VideoPlayer` component renders the built-in browser [`<video>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video) tag:
+你的自定义 `VideoPlayer` 组件渲染了内置的浏览器[`<video>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video)标签：
 
 ```js
 function VideoPlayer({ src, isPlaying }) {
@@ -87,11 +87,11 @@ function VideoPlayer({ src, isPlaying }) {
 }
 ```
 
-However, the browser `<video>` tag does not have an `isPlaying` prop. The only way to control it is to manually call the [`play()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play) and [`pause()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/pause) methods on the DOM element. **You need to synchronize the value of `isPlaying` prop, which tells whether the video _should_ currently be playing, with imperative calls like `play()` and `pause()`.**
+然而，浏览器的 `<video>` 标签没有 `isPlaying` prop。控制它的唯一方法是手动调用DOM元素上的[`play()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play)和[`pause()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/pause)方法。**你需要将  `isPlaying` prop 的值与 `play()` 和 `pause()` 等方法调用同步，`isPlaying` prop 告诉你视频当前是否 _应该_ 被播放。**
 
-We'll need to first [get a ref](/learn/manipulating-the-dom-with-refs) to the `<video>` DOM node.
+我们首先需要得到一个指向`<video>` [DOM节点的 ref](/learn/manipulating-the-dom-with-refs)。
 
-You might be tempted to try to call `play()` or `pause()` during rendering, but that isn't correct:
+你可能会试图在渲染过程中调用 `play()` 或 `pause()`，但这并不正确：
 
 <Sandpack>
 
@@ -133,11 +133,11 @@ video { width: 250px; }
 
 </Sandpack>
 
-The reason this code isn't correct is that it tries to do something with the DOM node during rendering. In React, [rendering should be a pure calculation](/learn/keeping-components-pure) of JSX and should not contain side effects like modifying the DOM.
+这段代码不正确的原因是，它试图在渲染过程中对DOM节点做一些事情。在React中，[渲染应该是JSX的纯计算](/learn/keeping-components-pure)，不应该包含修改DOM等副作用。
 
-Moreover, when `VideoPlayer` is called for the first time, its DOM does not exist yet! There isn't a DOM node yet to call `play()` or `pause()` on, because React doesn't know what DOM to create until after you return the JSX.
+此外，当 `VideoPlayer` 第一次被调用时，它的 DOM 还不存在！还没有一个 DOM 节点来调用 `play()` 或 `pause()` ，因为React不知道要创建什么 DOM，直到你返回 JSX 之后。
 
-The solution here is to **wrap the side effect with `useEffect` to move it out of the rendering calculation:**
+这里的解决方案是**用 `useEffect` 来包裹副作用，把它从渲染计算中移出来：**
 
 ```js {6,12}
 import { useEffect, useRef } from 'react';
@@ -157,11 +157,11 @@ function VideoPlayer({ src, isPlaying }) {
 }
 ```
 
-By wrapping the DOM update in an Effect, you let React update the screen first. Then your Effect runs.
+通过将DOM更新包裹在一个 Effect 中，你可以让React先更新屏幕。然后再运行你的Effect。
 
-When your `VideoPlayer` component renders (either the first time or if it re-renders), a few things will happen. First, React will update the screen, ensuring the `<video>` tag is in the DOM with the right props. Then React will run your Effect. Finally, your Effect will call `play()` or `pause()` depending on the value of `isPlaying` prop.
+当你的 `VideoPlayer` 组件渲染时（无论是第一次还是重新渲染），有几件事会发生。首先，React会更新屏幕，确保 `<video>` 标签在DOM中具有正确的 prop。然后React会运行你的 Effect。最后，你的 Effect 将根据 `isPlaying` prop 的值调用 `play()` 或 `pause()` 。
 
-Press Play/Pause multiple times and see how the video player stays synchronized to the `isPlaying` value:
+多次按下播放/暂停，看看视频播放器如何与 `isPlaying` 值保持同步：
 
 <Sandpack>
 
