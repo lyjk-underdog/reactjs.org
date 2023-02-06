@@ -205,13 +205,13 @@ video { width: 250px; }
 
 </Sandpack>
 
-In this example, the "external system" you synchronized to React state was the browser media API. You can use a similar approach to wrap legacy non-React code (like jQuery plugins) into declarative React components.
+在这个例子中，你同步到React状态的 “外部系统” 是浏览器媒体API。你可以用类似的方法将传统的非React代码（如jQuery插件）包装成声明性的React组件。
 
-Note that controlling a video player is much more complex in practice. Calling `play()` may fail, the user might play or pause using the built-in browser controls, and so on. This example is very simplified and incomplete.
+请注意，控制一个视频播放器在实践中要复杂得多。调用 `play()` 可能会失败，用户可能会使用内置的浏览器控件播放或暂停，等等。这个例子是非常简化和不完整的。
 
 <Pitfall>
 
-By default, Effects run after *every* render. This is why code like this will **produce an infinite loop:**
+默认情况下，Effect 会在每次渲染后运行。这就是为什么像这样的代码会**产生一个无限循环：**
 
 ```js
 const [count, setCount] = useState(0);
@@ -220,20 +220,20 @@ useEffect(() => {
 });
 ```
 
-Effects run as a *result* of rendering. Setting state *triggers* rendering. Setting state immediately in an Effect is like plugging a power outlet into itself. The Effect runs, it sets the state, which causes a re-render, which causes the Effect to run, it sets the state again, this causes another re-render, and so on.
+Effect 的运行是渲染的*结果*。设置状态会 *触发* 渲染。在一个 Effect 中立即设置状态，就像把电源插座插到自己身上。Effect 运行时，它设置了状态，这将导致重新渲染，这将导致 Effect 运行，它再次设置状态，这将导致另一次重新渲染，如此循环。
 
-Effects should usually synchronize your components with an *external* system. If there's no external system and you only want to adjust some state based on other state, [you might not need an Effect.](/learn/you-might-not-need-an-effect)
+Effect 通常应该使你的组件与 *外部系统* 同步。如果没有外部系统，而你只想根据其他状态来调整某些状态，[你可能不需要 Effect](/learn/you-might-not-need-an-effect)。
 
 </Pitfall>
 
-### Step 2: Specify the Effect dependencies {/*step-2-specify-the-effect-dependencies*/}
+### Step 2: 指定 Effect 依赖 {/*step-2-specify-the-effect-dependencies*/}
 
-By default, Effects run after *every* render. Often, this is **not what you want:**
+默认情况下，Effect 会在 *每次* 渲染后运行。通常，这**并不是你想要的**：
 
-- Sometimes, it's slow. Synchronizing with an external system is not always instant, so you might want to skip doing it unless it's necessary. For example, you don't want to reconnect to the chat server on every keystroke.
-- Sometimes, it's wrong. For example, you don't want to trigger a component fade-in animation on every keystroke. The animation should only play once when the component appears for the first time.
+- 有时，它很慢。与外部系统同步并不总是即时的，所以除非有必要，否则您可能想跳过这样做。例如，您不希望每次按键都重新连接到聊天服务器。
+- 有时，这是不对的。例如，你不希望在每个按键上都触发一个组件的淡入动画。该动画应该只在组件第一次出现时播放一次。
 
-To demonstrate the issue, here is the previous example with a few `console.log` calls and a text input that updates the parent component's state. Notice how typing causes the Effect to re-run:
+为了证明这个问题，这里是以前的例子，有几个 `console.log` 调用和一个更新父组件状态的文本输入。注意打字是如何导致 Effect 重新运行的：
 
 <Sandpack>
 
@@ -281,7 +281,7 @@ video { width: 250px; }
 
 </Sandpack>
 
-You can tell React to **skip unnecessarily re-running the Effect** by specifying an array of *dependencies* as the second argument to the `useEffect` call. Start by adding an empty `[]` array to the above example on line 14:
+你可以告诉React**跳过不必要的重新运行 Effect**，方法是在 `useEffect` 调用中指定一个 *依赖数组* 作为第二个参数。首先，在上面的例子中第 14 行添加一个空的 `[]` 数组：
 
 ```js {3}
   useEffect(() => {
@@ -289,7 +289,7 @@ You can tell React to **skip unnecessarily re-running the Effect** by specifying
   }, []);
 ```
 
-You should see an error saying `React Hook useEffect has a missing dependency: 'isPlaying'`:
+你应该看到一个错误，说 `React Hook useEffect has a missing dependency: 'isPlaying'`：
 
 <Sandpack>
 
@@ -337,7 +337,7 @@ video { width: 250px; }
 
 </Sandpack>
 
-The problem is that the code inside of your Effect *depends on* the `isPlaying` prop to decide what to do, but this dependency was not explicitly declared. To fix this issue, add `isPlaying` to the dependency array:
+问题是，你的 Effect 里面的代码 *依赖于* `isPlaying` prop 来决定做什么，但这个依赖关系没有被明确声明。为了解决这个问题，把 `isPlaying` 添加到依赖关系数组中：
 
 ```js {2,7}
   useEffect(() => {
@@ -349,7 +349,7 @@ The problem is that the code inside of your Effect *depends on* the `isPlaying` 
   }, [isPlaying]); // ...so it must be declared here!
 ```
 
-Now all dependencies are declared, so there is no error. Specifying `[isPlaying]` as the dependency array tells React that it should skip re-running your Effect if `isPlaying` is the same as it was during the previous render. With this change, typing into the input doesn't cause the Effect to re-run, but pressing Play/Pause does:
+现在所有的依赖关系都被声明了，所以不会有错误。指定 `[isPlaying]` 作为依赖数组告诉React，如果 `isPlaying` 与上次渲染时相同，它应该跳过重新运行你的 Effect。有了这个变化，在输入框中打字不会导致 Effect 的重新运行，但按下播放/暂停就会：
 
 <Sandpack>
 
@@ -397,13 +397,13 @@ video { width: 250px; }
 
 </Sandpack>
 
-The dependency array can contain multiple dependencies. React will only skip re-running the Effect if *all* of the dependencies you specify have exactly the same values as they had during the previous render. React compares the dependency values using the [`Object.is`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is) comparison. See the [`useEffect` API reference](/reference/react/useEffect#reference) for more details.
+依赖关系数组可以包含多个依赖关系。只有当你指定的所有依赖项的值与之前渲染时的值完全相同时，React才会跳过重新运行 Effect。React使用[`Object.is`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)比较法来比较依赖关系的值。更多细节见[`useEffect` API reference](/reference/react/useEffect#reference)。
 
-**Notice that you can't "choose" your dependencies.** You will get a lint error if the dependencies you specified don't match what React expects based on the code inside your Effect. This helps catch many bugs in your code. If your Effect uses some value but you *don't* want to re-run the Effect when it changes, you'll need to [*edit the Effect code itself* to not "need" that dependency.](/learn/lifecycle-of-reactive-effects#what-to-do-when-you-dont-want-to-re-synchronize)
+**注意，你不能 “选择” 你的依赖性。** 如果你指定的依赖关系与React根据你的 Effect 里面的代码所期望的不一致，你会得到一个 lint 错误。这有助于捕捉你代码中的许多错误。如果你的 Effect 使用了某些值，但你 *不想* 在它改变时重新运行Effect，你需要 [*编辑 Effect 代码本身*，使其不 “需要” 该依赖。](/learn/lifecycle-of-reactive-effects#what-to-do-when-you-dont-want-to-re-synchronize)
 
 <Pitfall>
 
-The behaviors *without* the dependency array and with an *empty* `[]` dependency array are very different:
+*没有* 依赖性数组和有空 `[]` 依赖性数组的行为是非常不同的：
 
 ```js {3,7,11}
 useEffect(() => {
@@ -419,15 +419,15 @@ useEffect(() => {
 }, [a, b]);
 ```
 
-We'll take a close look at what "mount" means in the next step.
+我们将在下一步仔细研究 “mount” 的含义。
 
 </Pitfall>
 
 <DeepDive>
 
-#### Why was the ref omitted from the dependency array? {/*why-was-the-ref-omitted-from-the-dependency-array*/}
+#### 为什么依赖关系数组中省略了ref？ {/*why-was-the-ref-omitted-from-the-dependency-array*/}
 
-This Effect uses _both_ `ref` and `isPlaying`, but only `isPlaying` is declared as a dependency:
+这个 Effect 同时使用了 `ref` 和 `isPlaying`，但只有 `isPlaying` 被声明为一个依赖关系：
 
 ```js {9}
 function VideoPlayer({ src, isPlaying }) {
@@ -441,7 +441,7 @@ function VideoPlayer({ src, isPlaying }) {
   }, [isPlaying]);
 ```
 
-This is because the `ref` object has a *stable identity:* React guarantees [you'll always get the same object](/reference/react/useRef#returns) from the same `useRef` call on every render. It never changes, so it will never by itself cause the Effect to re-run. Therefore, it does not matter whether you include it or not. Including it is fine too:
+这是因为 `ref` 对象有一个 *稳定的身份*：React保证 [你在每次渲染时都能从同一个 `useRef` 调用中得到同一个对象](/reference/react/useRef#returns)。它永远不会改变，所以它本身不会导致 Effect 的重新运行。因此，你是否包含它并不重要。包括它也是可以的：
 
 ```js {9}
 function VideoPlayer({ src, isPlaying }) {
@@ -455,17 +455,17 @@ function VideoPlayer({ src, isPlaying }) {
   }, [isPlaying, ref]);
 ```
 
-The [`set` functions](/reference/react/useState#setstate) returned by `useState` also have stable identity, so you will often see them omitted from the dependencies too. If the linter lets you omit a dependency without errors, it is safe to do.
+由 `useState` 返回的 [`set` 函数](/reference/react/useState#setstate) 也有稳定的身份，所以你经常会看到它们也从依赖关系中被省略。如果 linter 允许你省略一个依赖关系而不出错，那么这样做是安全的。
 
-Omitting always-stable dependencies only works when the linter can "see" that the object is stable. For example, if `ref` was passed from a parent component, you would have to specify it in the dependency array. However, this is good because you can't know whether the parent component always passes the same ref, or passes one of several refs conditionally. So your Effect _would_ depend on which ref is passed.
+只有当 linter 能够 “看到” 对象是稳定的，省略总是稳定的依赖关系才会起作用。例如，如果 `ref` 是由父组件传递的，你就必须在依赖关系数组中指定它。然而，这很好，因为你不知道父组件是否总是传递同一个 ref，或者有条件地传递几个 ref 之一。因此，你的 Effect _将_ 取决于传递的是哪一个 ref。
 
 </DeepDive>
 
-### Step 3: Add cleanup if needed {/*step-3-add-cleanup-if-needed*/}
+### Step 3: 如果需要，添加清理功能 {/*step-3-add-cleanup-if-needed*/}
 
-Consider a different example. You're writing a `ChatRoom` component that needs to connect to the chat server when it appears. You are given a `createConnection()` API that returns an object with `connect()` and `disconnect()` methods. How do you keep the component connected while it is displayed to the user?
+考虑一个不同的例子。你正在编写一个 `ChatRoom` 组件，当它出现时需要连接到聊天服务器。你得到了一个 `createConnection()` API，它返回一个带有 `connect()` 和 `disconnect()` 方法的对象。你如何在向用户显示时保持组件的连接？
 
-Start by writing the Effect logic:
+首先写出 Effect 逻辑：
 
 ```js
 useEffect(() => {
@@ -474,7 +474,7 @@ useEffect(() => {
 });
 ```
 
-It would be slow to connect to the chat after every re-render, so you add the dependency array:
+每次重新渲染后连接到聊天室会很慢，所以你添加了依赖性数组：
 
 ```js {4}
 useEffect(() => {
@@ -483,9 +483,9 @@ useEffect(() => {
 }, []);
 ```
 
-**The code inside the Effect does not use any props or state, so your dependency array is `[]` (empty). This tells React to only run this code when the component "mounts", i.e. appears on the screen for the first time.**
+**Effect 里面的代码不使用任何 prop 或 state，所以你的依赖数组是 `[]`（空）。这告诉React只有在组件 “mounts” 时，即第一次出现在屏幕上时，才运行这段代码。**
 
-Let's try running this code:
+让我们试着运行这段代码：
 
 <Sandpack>
 
@@ -522,13 +522,13 @@ input { display: block; margin-bottom: 20px; }
 
 </Sandpack>
 
-This Effect only runs on mount, so you might expect `"✅ Connecting..."` to be printed once in the console. **However, if you check the console, `"✅ Connecting..."` gets printed twice. Why does it happen?**
+这个 Effect 只在 mount 上运行，所以你可能期望 `“✅ Connecting...”` 在控制台中被打印一次。**然而，如果你检查控制台，`“✅ Connecting...”` 会被打印两次。为什么会出现这种情况？**
 
-Imagine the `ChatRoom` component is a part of a larger app with many different screens. The user starts their journey on the `ChatRoom` page. The component mounts and calls `connection.connect()`. Then imagine the user navigates to another screen--for example, to the Settings page. The `ChatRoom` component unmounts. Finally, the user clicks Back and `ChatRoom` mounts again. This would set up a second connection--but the first connection was never destroyed! As the user navigates across the app, the connections would keep piling up.
+想象一下，`ChatRoom` 组件是一个有许多不同屏幕的大型应用程序的一部分。用户在 `ChatRoom` 页面上开始他们的旅程。该组件安装并调用 `connection.connect()`。然后想象一下，用户导航到另一个屏幕--例如，到设置页面。`ChatRoom` 组件被卸载（unmounts）。最后，用户点击返回，`ChatRoom` 再次挂载（mounts）。这将建立第二个连接--但当用户在整个应用程序中导航时第一个连接从未被破坏过，这会导致连接的不断堆积。
 
-Bugs like this are easy to miss without extensive manual testing. To help you spot them quickly, in development React remounts every component once immediately after its initial mount. **Seeing the `"✅ Connecting..."` log twice helps you notice the real issue: your code doesn't close the connection when the component unmounts.**
+如果没有大量的人工测试，这样的错误很容易被忽略。为了帮助你快速发现它们，在开发过程中，React会在每个组件初次挂载后立即重新挂载一次。**看到两次 `“✅ Connecting...”` 的日志可以帮助你注意到真正的问题：当组件卸载时，你的代码并没有关闭连接。**
 
-To fix the issue, return a *cleanup function* from your Effect:
+为了解决这个问题，从你的 Effect 中返回一个清理函数：
 
 ```js {4-6}
   useEffect(() => {
@@ -540,7 +540,7 @@ To fix the issue, return a *cleanup function* from your Effect:
   }, []);
 ```
 
-React will call your cleanup function each time before the Effect runs again, and one final time when the component unmounts (gets removed). Let's see what happens when the cleanup function is implemented:
+React会在 Effect 再次运行前每次调用你的清理函数，并在组件卸载（被删除）时最后一次调用。让我们看看清理函数实现后会发生什么：
 
 <Sandpack>
 
@@ -578,27 +578,27 @@ input { display: block; margin-bottom: 20px; }
 
 </Sandpack>
 
-Now you get three console logs in development:
+现在你在开发中得到三个控制台日志：
 
 1. `"✅ Connecting..."`
 2. `"❌ Disconnected."`
 3. `"✅ Connecting..."`
 
-**This is the correct behavior in development.** By remounting your component, React verifies that navigating away and back would not break your code. Disconnecting and then connecting again is exactly what should happen! When you implement the cleanup well, there should be no user-visible difference between running the Effect once vs running it, cleaning it up, and running it again. There's an extra connect/disconnect call pair because React is probing your code for bugs in development. This is normal and you shouldn't try to make it go away.
+**这是开发中的正确行为。** 通过重新安装你的组件，React验证了导航离开和返回不会破坏你的代码。断开连接，然后再连接，这正是应该发生的事情！当你很好地实现了清理，运行一次 Effect 与运行它、清理它、再运行它之间应该没有用户可见的区别。因为React在开发中需要探测你的代码是否有bug，所以会有一个额外的 connect/disconnect 调用。这很正常，你不应该试图让它消失。
 
-**In production, you would only see `"✅ Connecting..."` printed once.** Remounting components only happens in development to help you find Effects that need cleanup. You can turn off [Strict Mode](/reference/react/StrictMode) to opt out of the development behavior, but we recommend keeping it on. This lets you find many bugs like the one above.
+**在生产中，你只会看到 `“✅ Connecting...”` 被打印一次。** 重新装载组件只发生在开发中，以帮助你找到需要清理的 Effect。你可以关闭 [Strict Mode](/reference/react/StrictMode)来选择不参与开发行为，但我们建议保持它。这可以让你发现许多像上面这样的错误。
 
-## How to handle the Effect firing twice in development? {/*how-to-handle-the-effect-firing-twice-in-development*/}
+## 如何处理开发中 Effect 被运行两次？ {/*how-to-handle-the-effect-firing-twice-in-development*/}
 
-React intentionally remounts your components in development to help you find bugs like in the last example. **The right question isn't "how to run an Effect once", but "how to fix my Effect so that it works after remounting".**
+React在开发过程中故意重新装载你的组件，以帮助你发现像上一个例子中的bug。**正确的问题不是 “如何运行一次Effect”，而是 “如何修复我的Effect，使其在重新挂载后仍能工作”。**
 
-Usually, the answer is to implement the cleanup function.  The cleanup function should stop or undo whatever the Effect was doing. The rule of thumb is that the user shouldn't be able to distinguish between the Effect running once (as in production) and a _setup → cleanup → setup_ sequence (as you'd see in development).
+通常情况下，答案是实现清理功能。 清理功能应该停止或撤消 Effect 正在做的任何事情。经验法则是，用户不应该能够区分 Effect 运行一次（如在生产中）和 _setup → cleanup → setup_ 序列（正如你在开发中看到的）。
 
-Most of the Effects you'll write will fit into one of the common patterns below.
+你要写的大部分 Effect 将符合以下常见模式之一。
 
-### Controlling non-React widgets {/*controlling-non-react-widgets*/}
+### 控制非 React 小工具 {/*controlling-non-react-widgets*/}
 
-Sometimes you need to add UI widgets that aren't written to React. For example, let's say you're adding a map component to your page. It has a `setZoomLevel()` method, and you'd like to keep the zoom level in sync with a `zoomLevel` state variable in your React code. Your Effect would look like similar to this:
+有时你需要添加没有写入React的UI部件。例如，假设你正在向你的页面添加一个地图组件。它有一个 `setZoomLevel()` 方法，你想让缩放级别与React代码中的 `zoomLevel` 状态变量保持同步。你的 Effect 将类似于这样：
 
 ```js
 useEffect(() => {
@@ -607,9 +607,9 @@ useEffect(() => {
 }, [zoomLevel]);
 ```
 
-Note that there is no cleanup needed in this case. In development, React will call the Effect twice, but this is not a problem because calling `setZoomLevel` twice with the same value does not do anything. It may be slightly slower, but this doesn't matter because the remounting is development-only and won't happen in production.
+注意，在这种情况下不需要清理。在开发中，React会调用 Effect 两次，但这不是问题，因为用相同的值调用 `setZoomLevel` 两次并不做任何事情。它可能会稍微慢一点，但这并不重要，因为重新挂载只是开发，不会发生在生产中。
 
-Some APIs may not allow you to call them twice in a row. For example, the [`showModal`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/showModal) method of the built-in [`<dialog>`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement) element throws if you call it twice. Implement the cleanup function and make it close the dialog:
+有些API可能不允许你连续调用它们两次。例如，内置 [`<dialog>`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement) 元素的 [`showModal`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/showModal) 方法，如果你调用它两次，就会抛出错误。实现清理函数并使其关闭对话框：
 
 ```js {4}
 useEffect(() => {
@@ -619,11 +619,11 @@ useEffect(() => {
 }, []);
 ```
 
-In development, your Effect will call `showModal()`, then immediately `close()`, and then `showModal()` again. This has the same user-visible behavior as calling `showModal()` once, as you would see in production.
+在开发中，你的 Effect 将调用 `showModal()`，然后立即 `close()`，然后再次调用 `showModal()`。这与你在生产中看到的调用一次 `showModal()` 的用户可见行为是一样的。
 
-### Subscribing to events {/*subscribing-to-events*/}
+### 订阅事件 {/*subscribing-to-events*/}
 
-If your Effect subscribes to something, the cleanup function should unsubscribe:
+如果你的 Effect 订阅了什么，清理功能应该取消订阅：
 
 ```js {6}
 useEffect(() => {
@@ -635,11 +635,11 @@ useEffect(() => {
 }, []);
 ```
 
-In development, your Effect will call `addEventListener()`, then immediately `removeEventListener()`, and then `addEventListener()` again with the same handler. So there would be only one active subscription at a time. This has the same user-visible behavior as calling `addEventListener()` once, as you would see in production.
+在开发中，你的 Effect 将调用 `addEventListener()`，然后立即 `removeEventListener()`，然后用同一个处理程序再次 `addEventListener()`。所以一次只有一个活动的订阅。这与调用 `addEventListener()` 一次具有相同的用户可见的行为，正如你在生产中看到的那样。
 
-### Triggering animations {/*triggering-animations*/}
+### 触发动画 {/*triggering-animations*/}
 
-If your Effect animates something in, the cleanup function should reset the animation to the initial values:
+如果你的 Effect 将一些东西做成了动画，清理函数应该将动画重置为初始值：
 
 ```js {4-6}
 useEffect(() => {
@@ -650,10 +650,9 @@ useEffect(() => {
   };
 }, []);
 ```
+在开发中，不透明度将被设置为 `1`，然后设置为 `0`，然后再设置为 `1`。这应该与直接设置为 `1` 的用户可见行为相同，这就是生产中会发生的情况。如果你使用一个支持 Tweening 的第三方动画库，你的清理函数应该将 Tween 的时间线重置为初始状态。
 
-In development, opacity will be set to `1`, then to `0`, and then to `1` again. This should have the same user-visible behavior as setting it to `1` directly, which is what would happen in production. If you use a third-party animation library with support for tweening, your cleanup function should reset the tween's timeline to its initial state.
-
-### Fetching data {/*fetching-data*/}
+### 获取数据 {/*fetching-data*/}
 
 If your Effect fetches something, the cleanup function should either [abort the fetch](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) or ignore its result:
 
