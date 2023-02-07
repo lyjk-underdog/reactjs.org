@@ -836,9 +836,9 @@ Three seconds later, you should see a sequence of logs (`a`, `ab`, `abc`, `abcd`
 
 <DeepDive>
 
-#### Each render has its own Effects {/*each-render-has-its-own-effects*/}
+#### 每次渲染都有自己的 Effect {/*each-render-has-its-own-effects*/}
 
-You can think of `useEffect` as "attaching" a piece of behavior to the render output. Consider this Effect:
+你可以把 `useEffect` 看作是把一段行为 “附加” 到渲染输出上。考虑一下这个 Effect：
 
 ```js
 export default function ChatRoom({ roomId }) {
@@ -852,18 +852,18 @@ export default function ChatRoom({ roomId }) {
 }
 ```
 
-Let's see what exactly happens as the user navigates around the app.
+让我们看看用户在应用中导航时到底发生了什么。
 
-#### Initial render {/*initial-render*/}
+#### 初次渲染 {/*initial-render*/}
 
-The user visits `<ChatRoom roomId="general" />`. Let's [mentally substitute](/learn/state-as-a-snapshot#rendering-takes-a-snapshot-in-time) `roomId` with `'general'`:
+用户访问 `<ChatRoom roomId="general" />`。让我们用 `'general'` 来代替 `roomId`：
 
 ```js
   // JSX for the first render (roomId = "general")
   return <h1>Welcome to general!</h1>;
 ```
 
-**The Effect is *also* a part of the rendering output.** The first render's Effect becomes:
+**Effect *也* 是渲染输出的一部分。** 第一次渲染的Effect变成了：
 
 ```js
   // Effect for the first render (roomId = "general")
@@ -876,20 +876,20 @@ The user visits `<ChatRoom roomId="general" />`. Let's [mentally substitute](/le
   ['general']
 ```
 
-React runs this Effect, which connects to the `'general'` chat room.
+React运行这个 Effect，它连接到 `'general'` 聊天室。
 
-#### Re-render with same dependencies {/*re-render-with-same-dependencies*/}
+#### 用相同的依赖关系重新渲染 {/*re-render-with-same-dependencies*/}
 
-Let's say `<ChatRoom roomId="general" />` re-renders. The JSX output is the same:
+假设 `<ChatRoom roomId="general" />` 重新渲染。JSX输出是一样的：
 
 ```js
   // JSX for the second render (roomId = "general")
   return <h1>Welcome to general!</h1>;
 ```
 
-React sees that the rendering output has not changed, so it doesn't update the DOM.
+React看到渲染输出没有改变，所以它没有更新DOM。
 
-The Effect from the second render looks like this:
+第二次渲染的 Effect 看起来是这样的：
 
 ```js
   // Effect for the second render (roomId = "general")
@@ -902,20 +902,20 @@ The Effect from the second render looks like this:
   ['general']
 ```
 
-React compares `['general']` from the second render with `['general']` from the first render. **Because all dependencies are the same, React *ignores* the Effect from the second render.** It never gets called.
+React将第二次渲染中的 `['general']` 与第一次渲染中的 `['general']` 进行比较。**因为所有的依赖关系都是一样的，所以React *忽略* 了第二次渲染的 Effect。** 它从未被调用。
 
-#### Re-render with different dependencies {/*re-render-with-different-dependencies*/}
+#### 用不同的依赖关系重新渲染 {/*re-render-with-different-dependencies*/}
 
-Then, the user visits `<ChatRoom roomId="travel" />`. This time, the component returns different JSX:
+然后，用户访问 `<ChatRoom roomId="travel" />`。这一次，该组件返回不同的JSX：
 
 ```js
   // JSX for the third render (roomId = "travel")
   return <h1>Welcome to travel!</h1>;
 ```
 
-React updates the DOM to change `"Welcome to general"` into `"Welcome to travel"`.
+React更新了DOM，将 `"Welcome to general"` 改为 `"Welcome to travel"`。
 
-The Effect from the third render looks like this:
+第三次渲染的 Effect 看起来是这样的：
 
 ```js
   // Effect for the third render (roomId = "travel")
@@ -928,19 +928,19 @@ The Effect from the third render looks like this:
   ['travel']
 ```
 
-React compares `['travel']` from the third render with `['general']` from the second render. One dependency is different: `Object.is('travel', 'general')` is `false`. The Effect can't be skipped.
+React将第三次渲染中的 `['travel']` 与第二次渲染中的 `['general']` 进行比较。第一个依赖关系是不同的：`Object.is('travel', 'general')`的结果是 `false` 。所以这个 Effect 不能被跳过。
 
-**Before React can apply the Effect from the third render, it needs to clean up the last Effect that _did_ run.** The second render's Effect was skipped, so React needs to clean up the first render's Effect. If you scroll up to the first render, you'll see that its cleanup calls `disconnect()` on the connection that was created with `createConnection('general')`. This disconnects the app from the `'general'` chat room.
+**在React应用第三次渲染的 Effect 之前，它需要清理最后运行的 Effect。** 第二次渲染的 Effect 被跳过，所以React需要清理第一次渲染的 Effect。如果你向上滚动到第一次渲染，你会看到它的清理工作在用 `createConnection('general')` 创建的连接上调用 `disconnect()` 。这将断开应用程序与 `'general'` 聊天室的连接。
 
-After that, React runs the third render's Effect. It connects to the `'travel'` chat room.
+之后，React运行第三次渲染的 Effect。它连接到 `'travel'` 聊天室。
 
-#### Unmount {/*unmount*/}
+#### 卸载 {/*unmount*/}
 
-Finally, let's say the user navigates away, and the `ChatRoom` component unmounts. React runs the last Effect's cleanup function. The last Effect was from the third render. The third render's cleanup destroys the `createConnection('travel')` connection. So the app disconnects from the `'travel'` room.
+最后，让我们假设用户导航离开，`ChatRoom` 组件卸载。React运行最后一个 Effect 的清理函数。最后一个 Effect 是在第三次渲染时产生的。第三次渲染的清理功能破坏了 `createConnection('travel')` 连接。因此，应用程序与 `'travel'` 房间断开连接。
 
-#### Development-only behaviors {/*development-only-behaviors*/}
+#### 仅开发行为 {/*development-only-behaviors*/}
 
-When [Strict Mode](/reference/react/StrictMode) is on, React remounts every component once after mount (state and DOM are preserved). This [helps you find Effects that need cleanup](#step-3-add-cleanup-if-needed) and exposes bugs like race conditions early. Additionally, React will remount the Effects whenever you save a file in development. Both of these behaviors are development-only.
+当 [Strict Mode](/reference/react/StrictMode) 开启时，React在挂载后对每个组件重新挂载一次（状态和DOM被保留）。这可以帮助你找到需要清理的 Effect，并尽早暴露出诸如 race condition 等错误。此外，每当你在开发中保存一个文件时，React都会重新挂载 Effect。这两种行为都是开发专用的。
 
 </DeepDive>
 
