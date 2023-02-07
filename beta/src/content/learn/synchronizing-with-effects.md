@@ -652,9 +652,9 @@ useEffect(() => {
 ```
 在开发中，不透明度将被设置为 `1`，然后设置为 `0`，然后再设置为 `1`。这应该与直接设置为 `1` 的用户可见行为相同，这就是生产中会发生的情况。如果你使用一个支持 Tweening 的第三方动画库，你的清理函数应该将 Tween 的时间线重置为初始状态。
 
-### 获取数据 {/*fetching-data*/}
+### 请求数据 {/*fetching-data*/}
 
-If your Effect fetches something, the cleanup function should either [abort the fetch](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) or ignore its result:
+如果你的 Effect 请求了一些东西，清理函数应该[中止请求](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)或忽略其结果：
 
 ```js {2,6,13-15}
 useEffect(() => {
@@ -675,11 +675,11 @@ useEffect(() => {
 }, [userId]);
 ```
 
-You can't "undo" a network request that already happened, but your cleanup function should ensure that the fetch that's _not relevant anymore_ does not keep affecting your application. For example, if the `userId` changes from `'Alice'` to `'Bob'`, cleanup ensures that the `'Alice'` response is ignored even if it arrives after `'Bob'`.
+你不能 “撤消” 已经发生的网络请求，但你的清理函数应该确保 _不再相关_ 的请求不会继续影响你的应用程序。例如，如果 `userId` 从 `'Alice'` 变成了 `'Bob'`，清理可以确保 `'Alice'` 的响应被忽略，即使它在 `'Bob'` 之后到达。
 
-**In development, you will see two fetches in the Network tab.** There is nothing wrong with that. With the approach above, the first Effect will immediately get cleaned up so its copy of the `ignore` variable will be set to `true`. So even though there is an extra request, it won't affect the state thanks to the `if (!ignore)` check.
+**在开发中，你会在网络标签中看到两个请求。** 这并没有什么不妥。用上面的方法，第一个 Effect 会立即被清理掉，所以它的 `ignore` 变量的副本会被设置为 `true`。所以即使有一个额外的请求，也不会影响状态，这要感谢 `if (!ignore)` 的检查。
 
-**In production, there will only be one request.** If the second request in development is bothering you, the best approach is to use a solution that deduplicates requests and caches their responses between components:
+**在生产中，将只有一个请求。** 如果开发中的第二个请求困扰着你，最好的办法是使用一个重复请求的解决方案，并在组件之间缓存其响应：
 
 ```js
 function TodoList() {
@@ -687,31 +687,31 @@ function TodoList() {
   // ...
 ```
 
-This will not only improve the development experience, but also make your application feel faster. For example, the user pressing the Back button won't have to wait for some data to load again because it will be cached. You can either build such a cache yourself or use one of the many existing alternatives to manual fetching in Effects.
+这不仅会改善开发体验，也会使你的应用程序感觉更快。例如，用户按下 “后退” 按钮就不必再等待一些数据的加载，因为这些数据会被缓存起来。你可以自己建立这样的缓存，也可以使用 Effect 中现有的许多替代手动获取的方法之一。
 
 <DeepDive>
 
-#### What are good alternatives to data fetching in Effects? {/*what-are-good-alternatives-to-data-fetching-in-effects*/}
+#### 在 Effect 中，有什么好的替代数据获取的方法？ {/*what-are-good-alternatives-to-data-fetching-in-effects*/}
 
-Writing `fetch` calls inside Effects is a [popular way to fetch data](https://www.robinwieruch.de/react-hooks-fetch-data/), especially in fully client-side apps. This is, however, a very manual approach and it has significant downsides:
+在 Effect 里面编写 `fetch` 调用是一种[流行的获取数据的方式](https://www.robinwieruch.de/react-hooks-fetch-data/)，特别是在完全客户端的应用程序中。然而，这是一个非常手动的方法，它有很大的缺点：
 
-- **Effects don't run on the server.** This means that the initial server-rendered HTML will only include a loading state with no data. The client computer will have to download all JavaScript and render your app only to discover that now it needs to load the data. This is not very efficient.
-- **Fetching directly in Effects makes it easy to create "network waterfalls".** You render the parent component, it fetches some data, renders the child components, and then they start fetching their data. If the network is not very fast, this is significantly slower than fetching all data in parallel.
-- **Fetching directly in Effects usually means you don't preload or cache data.** For example, if the component unmounts and then mounts again, it would have to fetch the data again.
-- **It's not very ergonomic.** There's quite a bit of boilerplate code involved when writing `fetch` calls in a way that doesn't suffer from bugs like [race conditions.](https://maxrozen.com/race-conditions-fetching-data-react-with-useeffect)
+- **Effect 不在服务器上运行。** 这意味着，最初的服务器渲染的 HTML 将只包括一个没有数据的加载状态。客户端计算机将不得不下载所有的JavaScript并渲染你的应用程序，然后发现现在它需要加载数据。这不是很有效率。
+- **在 Effect 中直接获取数据使得创建 “网络瀑布” 变得容易。** 你渲染父组件，它获取一些数据，渲染子组件，然后它们开始获取它们的数据。如果网络速度不快，这比平行获取所有数据要慢得多。
+- **在 Effect 中直接获取通常意味着你不需要预加载或缓存数据。** 例如，如果组件卸载了，然后再次挂载，它将不得不再次获取数据。
+- **这不是很符合人体工程学。** 在 Effect 中请求数据会遇到 [race conditions](https://maxrozen.com/race-conditions-fetching-data-react-with-useeffect) 等问题，解决它们需要编写更多的模板代码。
 
-This list of downsides is not specific to React. It applies to fetching data on mount with any library. Like with routing, data fetching is not trivial to do well, so we recommend the following approaches:
+这个缺点清单并不是专门针对React的。它适用于在挂载时获取数据的任何库。就像路由一样，数据的获取也不是那么容易做好的，所以我们推荐以下方法：
 
-- **If you use a [framework](/learn/start-a-new-react-project#building-with-a-full-featured-framework), use its built-in data fetching mechanism.** Modern React frameworks have integrated data fetching mechanisms that are efficient and don't suffer from the above pitfalls.
-- **Otherwise, consider using or building a client-side cache.** Popular open source solutions include [React Query](https://tanstack.com/query/latest), [useSWR](https://swr.vercel.app/), and [React Router 6.4+.](https://beta.reactrouter.com/en/main/start/overview) You can build your own solution too, in which case you would use Effects under the hood but also add logic for deduplicating requests, caching responses, and avoiding network waterfalls (by preloading data or hoisting data requirements to routes).
+- **如果你使用一个[框架](/learn/start-a-new-react-project#building-with-a-full-featured-framework)，请使用其内置的数据获取机制。** 现代的React框架有集成的数据获取机制，效率很高，不会有上述的陷阱。
+- **否则，考虑使用或建立一个客户端缓存。** 流行的开源解决方案包括[React Query](https://tanstack.com/query/latest)、[useSWR](https://swr.vercel.app/)和[React Router 6.4+](https://beta.reactrouter.com/en/main/start/overview)。你也可以建立你自己的解决方案，在这种情况下，您可以在幕后使用 Effect，还可以添加逻辑来删除重复请求、缓存响应和避免网络瀑布（通过预加载数据或将数据需求提升到路由）。
 
-You can continue fetching data directly in Effects if neither of these approaches suit you.
+如果这两种方法都不适合你，你可以继续在 Effect 中直接获取数据。
 
 </DeepDive>
 
-### Sending analytics {/*sending-analytics*/}
+### 发送分析报告 {/*sending-analytics*/}
 
-Consider this code that sends an analytics event on the page visit:
+考虑一下这段代码，它在页面访问时发送了一个分析事件：
 
 ```js
 useEffect(() => {
@@ -725,9 +725,9 @@ In development, `logVisit` will be called twice for every URL, so you might be t
 
 To debug the analytics events you're sending, you can deploy your app to a staging environment (which runs in production mode) or temporarily opt out of [Strict Mode](/reference/react/StrictMode) and its development-only remounting checks. You may also send analytics from the route change event handlers instead of Effects. For even more precise analytics, [intersection observers](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API) can help track which components are in the viewport and how long they remain visible.
 
-### Not an Effect: Initializing the application {/*not-an-effect-initializing-the-application*/}
+### 离开 Effect：初始化应用程序 {/*not-an-effect-initializing-the-application*/}
 
-Some logic should only run once when the application starts. You can put it outside your components:
+有些逻辑应该只在应用程序启动时运行一次。你可以把它放在你的组件之外：
 
 ```js {2-3}
 if (typeof window !== 'undefined') { // Check if we're running in the browser.
@@ -740,11 +740,11 @@ function App() {
 }
 ```
 
-This guarantees that such logic only runs once after the browser loads the page.
+这保证了这种逻辑在浏览器加载页面后只运行一次。
 
-### Not an Effect: Buying a product {/*not-an-effect-buying-a-product*/}
+### 离开 Effect：购买产品 {/*not-an-effect-buying-a-product*/}
 
-Sometimes, even if you write a cleanup function, there's no way to prevent user-visible consequences of running the Effect twice. For example, maybe your Effect sends a POST request like buying a product:
+有时，即使你写了一个清理函数，也没有办法防止用户可见的运行 Effect 两次的后果。例如，也许你的 Effect 发送了一个POST请求，如购买产品：
 
 ```js {2-3}
 useEffect(() => {
@@ -753,9 +753,9 @@ useEffect(() => {
 }, []);
 ```
 
-You wouldn't want to buy the product twice. However, this is also why you shouldn't put this logic in an Effect. What if the user goes to another page and then presses Back? Your Effect would run again. You don't want to buy the product when the user *visits* a page; you want to buy it when the user *clicks* the Buy button.
+你不会想买两次产品。然而，这也是为什么你不应该把这个逻辑放在 Effect 中。如果用户去了另一个页面，然后按了 “返回” 键，怎么办？你的 Effect 就会再次运行。你不希望在用户访问一个页面时购买产品；你希望在用户 *点击* 购买按钮时购买。
 
-Buying is not caused by rendering; it's caused by a specific interaction. It only runs once because the interaction (a click) happens once. **Delete the Effect and move your `/api/buy` request into the Buy button event handler:**
+购买不是由渲染引起的；它是由一个特定的互动引起的。它只运行一次，因为互动（点击）只发生一次。**删除 Effect，将你的 `/api/buy` 请求移到 Buy 按钮事件处理程序中：**
 
 ```js {2-3}
   function handleClick() {
@@ -764,11 +764,11 @@ Buying is not caused by rendering; it's caused by a specific interaction. It onl
   }
 ```
 
-**This illustrates that if remounting breaks the logic of your application, this usually uncovers existing bugs.** From the user's perspective, visiting a page shouldn't be different from visiting it, clicking a link, and then pressing Back. React verifies that your components don't break this principle by remounting them once in development.
+**这说明，如果重新安装破坏了你的应用程序的逻辑，这通常会发现现有的错误。** 从用户的角度来看，访问一个页面不应该与访问它、点击一个链接、然后按 Back 不同。React通过在开发过程中重新安装一次组件来验证你的组件不会破坏这一原则。
 
-## Putting it all together {/*putting-it-all-together*/}
+## 把它们放在一起 {/*putting-it-all-together*/}
 
-This playground can help you "get a feel" for how Effects work in practice.
+这个训练场可以帮助你 “感受” 到 Effect 如何在实践中发挥作用。
 
 This example uses [`setTimeout`](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout) to schedule a console log with the input text to appear three seconds after the Effect runs. The cleanup function cancels the pending timeout. Start by pressing "Mount the component":
 
@@ -946,15 +946,15 @@ When [Strict Mode](/reference/react/StrictMode) is on, React remounts every comp
 
 <Recap>
 
-- Unlike events, Effects are caused by rendering itself rather than a particular interaction.
-- Effects let you synchronize a component with some external system (third-party API, network, etc).
-- By default, Effects run after every render (including the initial one).
-- React will skip the Effect if all of its dependencies have the same values as during the last render.
-- You can't "choose" your dependencies. They are determined by the code inside the Effect.
-- An empty dependency array (`[]`) corresponds to the component "mounting", i.e. being added to the screen.
-- When Strict Mode is on, React mounts components twice (in development only!) to stress-test your Effects.
-- If your Effect breaks because of remounting, you need to implement a cleanup function.
-- React will call your cleanup function before the Effect runs next time, and during the unmount.
+- 与事件不同，效果是由渲染本身引起的，而不是由某个特定的互动引起的。
+- 效果可以让你将一个组件与一些外部系统（第三方API，网络等）同步。
+- 默认情况下，Effect 在每次渲染后运行（包括初始渲染）。
+- 如果它的所有依赖关系的值与上次渲染时相同，React将跳过 Effect。
+- 你不能 “选择” 你的依赖关系。它们是由 Effect 里面的代码决定的。
+- 一个空的依赖关系数组（ `[]` ）对应于组件的 “mounting”，即被添加到屏幕上。
+- 当严格模式开启时，React会对组件进行两次挂载（仅在开发中！）以对你的 Effect 进行压力测试。
+- 如果你的 Effect 因为重新挂载而损坏，你需要实现一个清理函数。
+- React会在 Effect 下次运行前，以及在卸载时调用你的清理函数。
 
 </Recap>
 
